@@ -1,7 +1,8 @@
-from pathlib import Path
+from pathlib import Path, WindowsPath
 from folders import FolderList, Folder
 
 import click
+from click import ClickException
 
 JSON_FILENAME = "folders.json"
 
@@ -18,7 +19,7 @@ def load_json(filename=JSON_FILENAME) -> FolderList:
 
 @click.group()
 def cli():
-    pass
+    """Utility for"""
 
 
 @cli.command()
@@ -32,18 +33,35 @@ def save_example():
 
 
 @cli.command()
-@click.option(
-    "--json-filename",
-    default=JSON_FILENAME,
-    help="List folders that are currently managed",
+def list():
+    """
+    Read folders.json configuration file and list managed folders.
+    """
+    managed_folders = load_json(JSON_FILENAME)
+    click.echo(managed_folders)
+
+
+@cli.command()
+@click.argument(
+    "folder-path",
+    type=click.Path(exists=True, file_okay=False, path_type=WindowsPath),
 )
-def list(json_filename):
-    loaded_folders = load_json(json_filename)
-    click.echo(loaded_folders)
+def add(folder_path: WindowsPath):
+    managed_folders = load_json(JSON_FILENAME)
+    if folder_path in managed_folders.source_dirs:
+        raise ClickException("Cannot add. Folder is already managed.")
+    # TODO: should also not be possible to add child (or parent?) of existing folder
+    click.echo(folder_path)
+
+
+@cli.command()
+@click.argument(
+    "folder-path",
+    type=click.Path(path_type=WindowsPath),
+)
+def remove(folder_path: WindowsPath):
+    managed_folders = load_json(JSON_FILENAME)
 
 
 if __name__ == "__main__":
     cli()
-    # if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
-    #     print("running in a PyInstaller bundle")
-    #     cli(sys.argv[1:])

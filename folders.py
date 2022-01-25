@@ -18,6 +18,7 @@ class Folder(BaseModel):
 
 
 class FolderList(BaseModel):
+    # Apparently this is the "Pydantic" way of storing a list of objects
     # https://pydantic-docs.helpmanual.io/usage/models/#custom-root-types
     __root__: list[Folder]
 
@@ -26,3 +27,7 @@ class FolderList(BaseModel):
 
     def __getitem__(self, item):
         return self.__root__[item]
+
+    @property
+    def source_dirs(self) -> list[WindowsPath]:
+        return [folder.source_dir for folder in list(self)]
