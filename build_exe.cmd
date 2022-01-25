@@ -1,0 +1,1 @@
+poetry run pyinstaller --onefile .\main.py --workpath _pyinstaller_temp/
