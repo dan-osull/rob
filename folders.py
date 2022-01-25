@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from pathlib import WindowsPath
 from hashlib import sha256
+from typing import Optional
+from config import JSON_FILENAME
 
 
 class Folder(BaseModel):
@@ -22,12 +24,25 @@ class FolderList(BaseModel):
     # https://pydantic-docs.helpmanual.io/usage/models/#custom-root-types
     __root__: list[Folder]
 
-    def __iter__(self):
-        return iter(self.__root__)
-
-    def __getitem__(self, item):
-        return self.__root__[item]
-
     @property
     def source_dirs(self) -> list[WindowsPath]:
-        return [folder.source_dir for folder in list(self)]
+        return [folder.source_dir for folder in self.__root__]
+
+    def get_folder_by_path(self, path: WindowsPath) -> Optional[Folder]:
+        return next((x for x in self.__root__ if x.source_dir == path), None)
+
+    def add_folder(self, folder: Folder):
+        self.__root__.append(folder)
+
+    def remove_folder(self, folder: Folder):
+        self.__root__.remove(folder)
+
+
+def save_json(folder_list: FolderList, filename=JSON_FILENAME) -> None:
+    json = folder_list.json()
+    with open(filename, "w") as file:
+        file.write(json)
+
+
+def load_json(filename=JSON_FILENAME) -> FolderList:
+    return FolderList.parse_file(filename)
