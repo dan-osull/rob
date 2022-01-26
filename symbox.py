@@ -6,7 +6,7 @@ from rich import print
 from tabulate import tabulate
 
 from exceptions import show_red_error
-from folders import Folder, get_folder_list
+from folders import Folder, FolderList
 
 
 @click.group()
@@ -20,7 +20,7 @@ def cli():
 @cli.command()
 def list():
     "List managed folders"
-    folder_list = get_folder_list()
+    folder_list = FolderList()
     table = tabulate(
         folder_list.get_table_data(),
         headers="keys",
@@ -44,7 +44,7 @@ def add(folder_path: WindowsPath):
     "Add folder to list"
     # Resolve path to correct capitalisation
     folder_path = folder_path.resolve()
-    folder_list = get_folder_list()
+    folder_list = FolderList()
     if folder_path in folder_list.source_dirs:
         raise ClickException(f"Cannot add folder. {folder_path} is already managed.")
     # TODO: should also be impossible to add child (and parent?) of existing folder
@@ -52,8 +52,8 @@ def add(folder_path: WindowsPath):
     folder = Folder(source_dir=folder_path)
 
     click.confirm(text=f"Add {folder}?", abort=True)
-    folder_list.add_folder(folder)
-    folder_list.save_json()
+    folder_list.folders.append(folder)
+    folder_list.save()
 
     print(f"Added {folder}")
     # TODO: finish
@@ -66,14 +66,14 @@ def add(folder_path: WindowsPath):
 )
 def remove(folder_path: WindowsPath):
     "Remove folder from list"
-    folder_list = get_folder_list()
+    folder_list = FolderList()
     folder = folder_list.get_folder_by_path(folder_path)
     if not folder:
         raise ClickException(f"Cannot find info for folder: {folder_path}.")
 
     click.confirm(text=f"Remove {folder}?", abort=True)
-    folder_list.remove_folder(folder)
-    folder_list.save_json()
+    folder_list.folders.remove(folder)
+    folder_list.save()
 
     print(f"Removed {folder}")
     # TODO: finish
