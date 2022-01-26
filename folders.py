@@ -1,19 +1,22 @@
+import json
+from dataclasses import dataclass, field
 from hashlib import sha256
 from pathlib import WindowsPath
 from typing import ClassVar, Optional
 
-from pydantic import BaseModel
 
-
-class Folder(BaseModel):
+@dataclass
+class Folder:
     """
     A folder being managed by the tool
     """
 
     field_names: ClassVar = ["source_dir", "target_dir_name"]
-
     source_dir: WindowsPath
     "The path of the folder on the source disk"
+
+    def __init__(self, source_dir):
+        self.source_dir = WindowsPath(source_dir)
 
     @property
     def target_dir_name(self) -> str:
@@ -30,15 +33,16 @@ class Folder(BaseModel):
         return {field: getattr(self, field) for field in self.field_names}
 
 
-class FolderList(BaseModel):
-    # Apparently this is the "Pydantic" way of storing a list of objects
-    # https://pydantic-docs.helpmanual.io/usage/models/#custom-root-types
-    __root__: list[Folder] = []
-    json_filename: str = "folders.json"
+@dataclass
+class FolderList:
+    config_filename: str = "symbox-folders.json"
+    folders: list[Folder] = field(default_factory=list)
 
-    @property
-    def folders(self) -> list[Folder]:
-        return self.__root__
+    def __post_init__(self):
+        config_path = WindowsPath(self.config_filename)
+        if config_path.exists():
+            with open(config_path) as file:
+                self.folders = [Folder(source_dir=item) for item in json.load(file)]
 
     @property
     def source_dirs(self) -> list[WindowsPath]:
@@ -47,27 +51,9 @@ class FolderList(BaseModel):
     def get_folder_by_path(self, path: WindowsPath) -> Optional[Folder]:
         return next((x for x in self.folders if x.source_dir == path), None)
 
-    def add_folder(self, folder: Folder):
-        self.folders.append(folder)
-
-    def remove_folder(self, folder: Folder):
-        self.folders.remove(folder)
-
     def get_table_data(self) -> list[dict]:
         return [item.get_table_data() for item in self.folders]
 
-    def save_json(self, json_filename=json_filename) -> None:
-        json = self.json()
-        with open(json_filename, "w") as file:
-            file.write(json)
-
-
-def get_folder_list(json_filename=FolderList.json_filename) -> FolderList:
-    """
-    Load FolderList from JSON file
-    """
-    json_path = WindowsPath(json_filename)
-    if json_path.exists():
-        return FolderList.parse_file(json_path)
-    else:
-        return FolderList()
+    def save(self, config_filename=config_filename) -> None:
+        with open(config_filename, "w") as file:
+            file.write(json.dumps([str(item.source_dir) for item in self.folders]))
