@@ -1,2 +1,4 @@
 __pycache__/
 _pyinstaller_temp/
+symbox.spec
+symbox-folders.json
