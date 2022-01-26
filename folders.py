@@ -43,20 +43,17 @@ class FolderLibrary:
     config_path: WindowsPath
     folders: list[Folder]
 
-    def __init__(self, library_folder: Optional[WindowsPath] = None) -> None:
-        if not library_folder:
-            # Defaults to current folder (".")
-            library_folder = WindowsPath()
+    def __init__(self, library_folder: WindowsPath):
         self.config_path = library_folder.joinpath(self.config_filename).resolve()
 
         self.folders = []
         if self.config_path.exists():
-            with open(self.config_path) as file:
+            with open(self.config_path, encoding="utf8") as file:
                 self.folders = [Folder(source_dir=item) for item in json.load(file)]
 
     @property
     def library_folder(self) -> WindowsPath:
-        "Library is folder that contains config file"
+        "Library is the folder that contains config file"
         return self.config_path.parent
 
     @property
@@ -70,5 +67,5 @@ class FolderLibrary:
         return [item.get_table_data() for item in self.folders]
 
     def save(self) -> None:
-        with open(self.config_path, "w") as file:
+        with open(self.config_path, "w", encoding="utf8") as file:
             file.write(json.dumps([str(item.source_dir) for item in self.folders]))
