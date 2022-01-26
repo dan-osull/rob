@@ -4,8 +4,6 @@ from typing import ClassVar, Optional
 
 from pydantic import BaseModel
 
-from config import JSON_FILENAME
-
 
 class Folder(BaseModel):
     """
@@ -31,22 +29,12 @@ class Folder(BaseModel):
     def get_table_data(self) -> dict:
         return {field: getattr(self, field) for field in self.field_names}
 
-    def __repr__(self):
-        return f"{self.__class__.__name__}({self.get_table_data()})"
-
 
 class FolderList(BaseModel):
     # Apparently this is the "Pydantic" way of storing a list of objects
     # https://pydantic-docs.helpmanual.io/usage/models/#custom-root-types
-    __root__: list[Folder]
-
-    # This kind of thing works:
-    # FolderList.parse_obj(
-    #     [
-    #         Folder(source_dir=WindowsPath("C:\\Temp")),
-    #         Folder(source_dir=WindowsPath("C:\\Windows")),
-    #     ]
-    # )
+    __root__: list[Folder] = []
+    json_filename: str = "folders.json"
 
     @property
     def folders(self) -> list[Folder]:
@@ -68,12 +56,18 @@ class FolderList(BaseModel):
     def get_table_data(self) -> list[dict]:
         return [item.get_table_data() for item in self.folders]
 
+    def save_json(self, json_filename=json_filename) -> None:
+        json = self.json()
+        with open(json_filename, "w") as file:
+            file.write(json)
 
-def save_json(folder_list: FolderList, filename=JSON_FILENAME) -> None:
-    json = folder_list.json()
-    with open(filename, "w") as file:
-        file.write(json)
 
-
-def load_json(filename=JSON_FILENAME) -> FolderList:
-    return FolderList.parse_file(filename)
+def get_folder_list(json_filename=FolderList.json_filename) -> FolderList:
+    """
+    Load FolderList from JSON file
+    """
+    json_path = WindowsPath(json_filename)
+    if json_path.exists():
+        return FolderList.parse_file(json_path)
+    else:
+        return FolderList()

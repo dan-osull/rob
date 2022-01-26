@@ -6,24 +6,36 @@ from rich import print
 from tabulate import tabulate
 
 from exceptions import show_red_error
-from folders import Folder, load_json, save_json
+from folders import Folder, get_folder_list
 
 
 @click.group()
-def main():
+def cli():
     "Utility for..."
-    # TODO: doesn't change color of e.g. exists=True error
+    # TODO: doesn't change color of e.g. exists=True error,
+    # because its subclass has a custom show()
     ClickException.show = show_red_error
 
 
-@main.command()
+@cli.command()
 def list():
     "List managed folders"
-    folder_list = load_json()
-    print(tabulate(folder_list.get_table_data(), headers="keys", showindex="always"))
+    folder_list = get_folder_list()
+    table = tabulate(
+        folder_list.get_table_data(),
+        headers="keys",
+        # showindex="always"
+    )
+    print(
+        f"""
+Folders currently managed:
+
+{table}
+       """
+    )
 
 
-@main.command()
+@cli.command()
 @click.argument(
     "folder-path",
     type=click.Path(exists=True, file_okay=False, path_type=WindowsPath),
@@ -32,35 +44,40 @@ def add(folder_path: WindowsPath):
     "Add folder to list"
     # Resolve path to correct capitalisation
     folder_path = folder_path.resolve()
-    folder_list = load_json()
+    folder_list = get_folder_list()
     if folder_path in folder_list.source_dirs:
         raise ClickException(f"Cannot add folder. {folder_path} is already managed.")
     # TODO: should also be impossible to add child (and parent?) of existing folder
 
-    new_folder = Folder(source_dir=folder_path)
+    folder = Folder(source_dir=folder_path)
 
-    folder_list.add_folder(new_folder)
-    save_json(folder_list)
-    print(f"Added {new_folder}")
+    click.confirm(text=f"Add {folder}?", abort=True)
+    folder_list.add_folder(folder)
+    folder_list.save_json()
+
+    print(f"Added {folder}")
     # TODO: finish
 
 
-@main.command()
+@cli.command()
 @click.argument(
     "folder-path",
     type=click.Path(path_type=WindowsPath),
 )
 def remove(folder_path: WindowsPath):
     "Remove folder from list"
-    folder_list = load_json()
-    item_found = folder_list.get_folder_by_path(folder_path)
-    if not item_found:
+    folder_list = get_folder_list()
+    folder = folder_list.get_folder_by_path(folder_path)
+    if not folder:
         raise ClickException(f"Cannot find info for folder: {folder_path}.")
-    folder_list.remove_folder(item_found)
-    save_json(folder_list)
-    print(f"Removed {item_found}")
+
+    click.confirm(text=f"Remove {folder}?", abort=True)
+    folder_list.remove_folder(folder)
+    folder_list.save_json()
+
+    print(f"Removed {folder}")
     # TODO: finish
 
 
 if __name__ == "__main__":
-    main()
+    cli()
