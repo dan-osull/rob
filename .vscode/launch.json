@@ -10,9 +10,10 @@
             "request": "launch",
             "module": "main",
             "args": [
-                "remove",
-                "c:\\temp"
-            ]
+                "list",
+                // "c:\\windows"
+            ],
+            "justMyCode": false,
         },
         {
             "name": "Python: Current File",
