@@ -10,6 +10,7 @@ click = "^8.0.3"
 pyinstaller = "^4.8"
 rich = "^11.0.0"
 tabulate = "^0.8.9"
+click-default-group = "^1.2.2"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^21.12b0", allow-prereleases = true}

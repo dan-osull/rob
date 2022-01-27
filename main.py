@@ -2,15 +2,22 @@ from pathlib import WindowsPath
 
 import click
 from click import ClickException
+from click_default_group import DefaultGroup
 from rich import print  # pylint: disable=redefined-builtin
 from tabulate import tabulate
 
+from console import style_project_name
 from exceptions import show_red_error
 from filesystem import add_folder_actions
 from folders import Folder, FolderLibrary
 
 
-@click.group(context_settings={"help_option_names": ["-h", "--help"]})
+@click.group(
+    cls=DefaultGroup,
+    default="list",
+    default_if_no_args=True,
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
 def cli():
     """Utility for..."""
     # TODO: doesn't change color of subclasses with custom show() e.g. error on exists=True
@@ -31,14 +38,17 @@ def library_folder_option(function):
 
 @cli.command(name="list")
 @library_folder_option
-def list_(library_folder: WindowsPath):
+@click.pass_context
+def list_(ctx, library_folder: WindowsPath):
     """List folders in library"""
+    # TODO: correct help for default command
+    # click.echo(list_.get_help(ctx))
     library = FolderLibrary(library_folder)
     table = tabulate(library.get_table_data(), headers="keys")
 
     print("")
     print(
-        f"{len(library.folders)} folders in [cyan]{library.library_folder}[/cyan] library."
+        f"{len(library.folders)} folders in {style_project_name()} library at [cyan]{library.library_folder}[/cyan]"
     )
     if table:
         print("")
@@ -68,7 +78,9 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath):
 
     folder = Folder(source_dir=folder_path)
 
-    print(f"Add {folder} to [cyan]{library.library_folder}[/cyan] library?")
+    print(
+        f"Add {folder} to {style_project_name()} library at [cyan]{library.library_folder}[/cyan]?"
+    )
     click.confirm(text="Confirm", abort=True)
     # add_folder_actions(folder, library)
 
@@ -93,7 +105,9 @@ def remove(folder_path: WindowsPath, library_folder: WindowsPath):
         # TODO: either accept target_dir_name, or add more help about using source_dir
         raise ClickException(f"Cannot find info for folder: {folder_path}.")
 
-    print(f"Remove {folder} from [cyan]{library.library_folder}[/cyan] library?")
+    print(
+        f"Remove {folder} from {style_project_name()} library at [cyan]{library.library_folder}[/cyan]?"
+    )
 
     click.confirm(
         text="Confirm",
@@ -108,3 +122,4 @@ def remove(folder_path: WindowsPath, library_folder: WindowsPath):
 
 if __name__ == "__main__":
     cli()
+    print("gree")

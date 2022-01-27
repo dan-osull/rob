@@ -4,7 +4,7 @@ from hashlib import sha256
 from pathlib import WindowsPath
 from typing import ClassVar, Optional, Union
 
-FILE_PREFIX = "rob"
+from config import PROJECT_NAME
 
 
 @dataclass
@@ -30,7 +30,7 @@ class Folder:
 
     @property
     def temp_dir_name(self) -> str:
-        return f"_{FILE_PREFIX}_temp_{self.target_dir_name}"
+        return f"_{PROJECT_NAME}_temp_{self.target_dir_name}"
 
     def get_temp_dir(self) -> WindowsPath:
         """Temp dir is a sibling of the source. It is used for shuffling data."""
@@ -47,7 +47,7 @@ class Folder:
 
 @dataclass
 class FolderLibrary:
-    config_filename: ClassVar = f"{FILE_PREFIX}-folders.json"
+    config_filename: ClassVar = f"{PROJECT_NAME}-folders.json"
     config_path: WindowsPath
     folders: list[Folder]
 
