@@ -81,7 +81,7 @@ def list_(ctx, library_folder: WindowsPath):
 def add(folder_path: WindowsPath, library_folder: WindowsPath):
     """Add FOLDER_PATH to library"""
     if folder_path.is_symlink():
-        raise ClickException(f"Cannot add a symlink.")
+        raise ClickException(f"Cannot add a symlink. Is {folder_path} already managed?")
 
     library = FolderLibrary(library_folder)
     if folder_path in library.source_dirs:
