@@ -40,14 +40,14 @@ def library_folder_option(function):
 @click.pass_context
 def list_(ctx, library_folder: WindowsPath):
     """List folders in library"""
-    # Provide help from root context
+    # Show help from root context
     click.echo(cli.get_help(ctx.parent))
     library = FolderLibrary(library_folder)
     table = tabulate(library.get_table_data(), headers="keys")
 
     print("")
     print(
-        f"{len(library.folders)} folders in {style_project_name()} library at [cyan]{library.library_folder}[/cyan]"
+        f"{len(library.folders)} folders in {style_project_name()} library at [cyan]{library.library_folder}[/cyan]"  # pylint: disable=line-too-long
     )
     if table:
         print("")
@@ -105,7 +105,7 @@ def remove(folder_path: WindowsPath, library_folder: WindowsPath):
         raise ClickException(f"Cannot find info for folder: {folder_path}.")
 
     print(
-        f"Remove {folder} from {style_project_name()} library at [cyan]{library.library_folder}[/cyan]?"
+        f"Remove {folder} from {style_project_name()} library at [cyan]{library.library_folder}[/cyan]?"  # pylint: disable=line-too-long
     )
 
     click.confirm(
