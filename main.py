@@ -41,12 +41,8 @@ def list_(ctx, library_folder: WindowsPath):
     """List folders in library"""
 
     library = FolderLibrary(library_folder)
+    plur_s = "" if len(library.folders) == 1 else "s"
     table = tabulate(library.get_table_data(), headers="keys")
-    # TODO: One-liner?
-    if len(library.folders) == 1:
-        plural_s = ""
-    else:
-        plural_s = "s"
 
     # Show help from root context
     click.echo(cli.get_help(ctx.parent))
@@ -54,7 +50,7 @@ def list_(ctx, library_folder: WindowsPath):
     console.rule(style="grey50")
     print_("")
     print_(
-        f"{len(library.folders)} folder{plural_s} in {style_project_name()} library at [cyan]{library.library_folder}[/cyan]"  # pylint: disable=line-too-long
+        f"{len(library.folders)} folder{plur_s} in {style_project_name()} library at [cyan]{library.library_folder}[/cyan]"  # pylint: disable=line-too-long
     )
     if table:
         print_("")
