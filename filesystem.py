@@ -2,8 +2,8 @@ import os
 from pathlib import Path, WindowsPath
 
 from click import ClickException
-from rich import print  # pylint: disable=redefined-builtin
 
+from console import print_
 from folders import Folder, FolderLibrary
 
 ROBOCOPY_PATH: WindowsPath = (
@@ -13,7 +13,7 @@ ROBOCOPY_PATH: WindowsPath = (
 
 def test_dir_creation(path: WindowsPath) -> None:
     """Test write access by creating and deleting an empty folder"""
-    print(f"Testing write access to {path}")
+    print_(f"Testing write access to {path}")
     if path.exists():
         raise ClickException(f"{path} already exists")
     try:
@@ -26,7 +26,7 @@ def test_dir_creation(path: WindowsPath) -> None:
 
 
 def rename_folder(source: WindowsPath, target: WindowsPath) -> None:
-    print(f"Renaming {source=} to {target=}")
+    print_(f"Renaming {source=} to {target=}")
     try:
         source.rename(target)
     except PermissionError as e:
@@ -45,10 +45,10 @@ def add_folder_actions(folder: Folder, library: FolderLibrary):
 
     rename_folder(folder.source_dir, temp_dir)
 
-    print(f"Copying data from {temp_dir=} to {target_dir=}")
+    print_(f"Copying data from {temp_dir=} to {target_dir=}")
     # TODO: robocopy here
 
-    print(f"Making symlink from {folder.source_dir=} to {target_dir=}")
+    print_(f"Making symlink from {folder.source_dir=} to {target_dir=}")
     # TODO: make symlink here
 
     # TODO: delete source_dir here
@@ -63,13 +63,13 @@ def remove_folder_actions(folder: Folder, library: FolderLibrary):
     temp_dir = folder.get_temp_dir()
     test_dir_creation(temp_dir)
 
-    print(f"Copying data from {target_dir=} to {temp_dir=}")
+    print_(f"Copying data from {target_dir=} to {temp_dir=}")
     # TODO: robocopy here
 
-    print(f"Deleting symlink from {folder.source_dir=} to {target_dir=}")
+    print_(f"Deleting symlink from {folder.source_dir=} to {target_dir=}")
     # TODO: delete symlink here
 
-    print(f"Renaming {temp_dir=} to {folder.source_dir=}")
+    print_(f"Renaming {temp_dir=} to {folder.source_dir=}")
     # TODO: rename here
 
     # TODO: delete target_dir here

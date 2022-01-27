@@ -3,10 +3,9 @@ from pathlib import WindowsPath
 import click
 from click import ClickException
 from click_default_group import DefaultGroup
-from rich import print  # pylint: disable=redefined-builtin
 from tabulate import tabulate
 
-from console import style_project_name
+from console import console, print_, style_project_name
 from exceptions import show_red_error
 from filesystem import add_folder_actions
 from folders import Folder, FolderLibrary
@@ -40,19 +39,27 @@ def library_folder_option(function):
 @click.pass_context
 def list_(ctx, library_folder: WindowsPath):
     """List folders in library"""
-    # Show help from root context
-    click.echo(cli.get_help(ctx.parent))
+
     library = FolderLibrary(library_folder)
     table = tabulate(library.get_table_data(), headers="keys")
+    # TODO: One-liner?
+    if len(library.folders) == 1:
+        plural_s = ""
+    else:
+        plural_s = "s"
 
-    print("")
-    print(
-        f"{len(library.folders)} folders in {style_project_name()} library at [cyan]{library.library_folder}[/cyan]"  # pylint: disable=line-too-long
+    # Show help from root context
+    click.echo(cli.get_help(ctx.parent))
+    print_("")
+    console.rule(style="grey50")
+    print_("")
+    print_(
+        f"{len(library.folders)} folder{plural_s} in {style_project_name()} library at [cyan]{library.library_folder}[/cyan]"  # pylint: disable=line-too-long
     )
     if table:
-        print("")
-        print(table)
-    print("")
+        print_("")
+        print_(table)
+    print_("")
 
 
 @cli.command()
@@ -77,7 +84,7 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath):
 
     folder = Folder(source_dir=folder_path)
 
-    print(
+    print_(
         f"Add {folder} to {style_project_name()} library at [cyan]{library.library_folder}[/cyan]?"
     )
     click.confirm(text="Confirm", abort=True)
@@ -86,7 +93,7 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath):
     library.folders.append(folder)
     library.save()
 
-    print(f"Added {folder}")
+    print_(f"Added {folder}")
     # TODO: finish
 
 
@@ -104,7 +111,7 @@ def remove(folder_path: WindowsPath, library_folder: WindowsPath):
         # TODO: either accept target_dir_name, or add more help about using source_dir
         raise ClickException(f"Cannot find info for folder: {folder_path}.")
 
-    print(
+    print_(
         f"Remove {folder} from {style_project_name()} library at [cyan]{library.library_folder}[/cyan]?"  # pylint: disable=line-too-long
     )
 
@@ -115,7 +122,7 @@ def remove(folder_path: WindowsPath, library_folder: WindowsPath):
     library.folders.remove(folder)
     library.save()
 
-    print(f"Removed {folder}")
+    print_(f"Removed {folder}")
     # TODO: finish
 
 
