@@ -10,8 +10,10 @@
             "request": "launch",
             "module": "main",
             "args": [
-                "list",
-                // "C:\\Git\\python_robsym_dooh\\example\\source\\A nice folder"
+                "remove",
+                "D:\\temp\\1",
+                "-l",
+                "D:\\rob_library"
             ],
             "justMyCode": false,
         },

@@ -34,7 +34,7 @@ class Folder:
 
     def get_temp_dir(self) -> WindowsPath:
         """Temp dir is a sibling of the source. It is used for shuffling data."""
-        return self.source_dir.parent.joinpath(self.temp_dir_name).resolve()
+        return self.source_dir.parent.joinpath(self.temp_dir_name)
 
     @property
     def _source_dir_hash(self) -> str:

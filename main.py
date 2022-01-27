@@ -3,16 +3,23 @@ from pathlib import WindowsPath
 import click
 from click import ClickException
 from click_default_group import DefaultGroup
+from click_help_colors import HelpColorsGroup
 from tabulate import tabulate
 
 from console import console, print_, style_project_name
 from exceptions import show_red_error
-from filesystem import add_folder_actions
+from filesystem import add_folder_actions, remove_folder_actions
 from folders import Folder, FolderLibrary
 
 
+class ClickGroup(DefaultGroup, HelpColorsGroup):
+    ...
+
+
 @click.group(
-    cls=DefaultGroup,
+    cls=ClickGroup,
+    help_headers_color="yellow",
+    help_options_color="green",
     default_if_no_args=True,
     context_settings={"help_option_names": ["-h", "--help"]},
 )
@@ -34,7 +41,10 @@ def library_folder_option(function):
     )(function)
 
 
-@cli.command(name="list", default=True)
+@cli.command(
+    name="list",
+    default=True,
+)
 @library_folder_option
 @click.pass_context
 def list_(ctx, library_folder: WindowsPath):
@@ -58,7 +68,7 @@ def list_(ctx, library_folder: WindowsPath):
     print_("")
 
 
-@cli.command()
+@cli.command(no_args_is_help=True)
 @library_folder_option
 @click.argument(
     "folder-path",
@@ -66,17 +76,23 @@ def list_(ctx, library_folder: WindowsPath):
         exists=True,
         file_okay=False,
         path_type=WindowsPath,
-        # Resolve path to correct capitalisation
-        resolve_path=True,
     ),
 )
 def add(folder_path: WindowsPath, library_folder: WindowsPath):
     """Add FOLDER_PATH to library"""
+    if folder_path.is_symlink():
+        raise ClickException(f"Cannot add a symlink.")
+
     library = FolderLibrary(library_folder)
     if folder_path in library.source_dirs:
         raise ClickException(f"Cannot add folder. {folder_path} is already managed.")
+
+    # Resolve path to correct capitalisation
+    # Do this after library has been checked to avoid resolving symlink!
+    folder_path = folder_path.resolve()
     # TODO: should not be possible to add child (and parent?) of existing folder
     # TODO: don't allow root of disk
+    # TODO: source and dest should be on different disks
 
     folder = Folder(source_dir=folder_path)
 
@@ -84,16 +100,15 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath):
         f"Add {folder} to {style_project_name()} library at [cyan]{library.library_folder}[/cyan]?"
     )
     click.confirm(text="Confirm", abort=True)
-    # add_folder_actions(folder, library)
+    add_folder_actions(folder, library)
 
     library.folders.append(folder)
     library.save()
 
     print_(f"Added {folder}")
-    # TODO: finish
 
 
-@cli.command()
+@cli.command(no_args_is_help=True)
 @library_folder_option
 @click.argument(
     "folder-path",
@@ -115,13 +130,13 @@ def remove(folder_path: WindowsPath, library_folder: WindowsPath):
         text="Confirm",
         abort=True,
     )
+    remove_folder_actions(folder, library)
+
     library.folders.remove(folder)
     library.save()
 
     print_(f"Removed {folder}")
-    # TODO: finish
 
 
 if __name__ == "__main__":
     cli()
-    # TODO: can we find invokations without a command here, instead of by using external module?

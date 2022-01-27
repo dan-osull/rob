@@ -1,14 +1,10 @@
-import os
-from pathlib import Path, WindowsPath
+from pathlib import WindowsPath
 
 from click import ClickException
 
 from console import print_
 from folders import Folder, FolderLibrary
-
-ROBOCOPY_PATH: WindowsPath = (
-    WindowsPath(os.environ["SystemRoot"]).joinpath("system32/robocopy.exe").resolve()
-)
+from robocopy import run_robocopy
 
 
 def test_dir_creation(path: WindowsPath) -> None:
@@ -17,12 +13,25 @@ def test_dir_creation(path: WindowsPath) -> None:
     if path.exists():
         raise ClickException(f"{path} already exists")
     try:
-        Path.mkdir(path)
-        Path.rmdir(path)
+        path.mkdir()
     except PermissionError as e:
         raise ClickException(
             f"Could not create {path}. Do you need to run Command Prompt as Administrator?"
         ) from e
+    finally:
+        if path.exists():
+            path.rmdir()
+
+
+def test_symlink_creation(source: WindowsPath, target: WindowsPath) -> None:
+    print_(f"Testing symlink creation from {source} to {target}")
+    target.mkdir()
+    try:
+        create_symlink(source, target)
+        delete_symlink(source)
+    finally:
+        if target.exists():
+            target.rmdir()
 
 
 def rename_folder(source: WindowsPath, target: WindowsPath) -> None:
@@ -35,22 +44,41 @@ def rename_folder(source: WindowsPath, target: WindowsPath) -> None:
         ) from e
 
 
+def create_symlink(source: WindowsPath, target: WindowsPath) -> None:
+    print_(f"Making symlink from {source=} to {target=}")
+    if not target.exists():
+        raise ClickException(f"{target} does not exist")
+    try:
+        source.symlink_to(target, target_is_directory=True)
+    except FileExistsError as e:
+        raise ClickException(f"{source} already exists") from e
+    except OSError as e:
+        raise ClickException(
+            "Permission denied when creating symlink. Run Command Prompt as Administrator or enable Windows Developer Mode."  # pylint: disable=line-too-long
+        ) from e
+
+
+def delete_symlink(path: WindowsPath) -> None:
+    print_(f"Deleting symlink {path=}")
+    if not path.is_symlink():
+        raise ClickException(f"{path} is not a symlink")
+    path.unlink()
+
+
 def add_folder_actions(folder: Folder, library: FolderLibrary):
     """Filesystem actions for `add` command"""
     target_dir = folder.get_target_dir(library.library_folder)
+
+    print_("[bold]Running pre-flight checks[/bold]")
     test_dir_creation(target_dir)
     temp_dir = folder.get_temp_dir()
     test_dir_creation(temp_dir)
-    # TODO: test symlink creation at temp_dir location?
+    test_symlink_creation(temp_dir, target_dir)
 
+    print_("Actions start")
     rename_folder(folder.source_dir, temp_dir)
-
-    print_(f"Copying data from {temp_dir=} to {target_dir=}")
-    # TODO: robocopy here
-
-    print_(f"Making symlink from {folder.source_dir=} to {target_dir=}")
-    # TODO: make symlink here
-
+    run_robocopy(temp_dir, target_dir)
+    create_symlink(folder.source_dir, target_dir)
     # TODO: delete source_dir here
 
 
@@ -63,13 +91,7 @@ def remove_folder_actions(folder: Folder, library: FolderLibrary):
     temp_dir = folder.get_temp_dir()
     test_dir_creation(temp_dir)
 
-    print_(f"Copying data from {target_dir=} to {temp_dir=}")
-    # TODO: robocopy here
-
-    print_(f"Deleting symlink from {folder.source_dir=} to {target_dir=}")
-    # TODO: delete symlink here
-
-    print_(f"Renaming {temp_dir=} to {folder.source_dir=}")
-    # TODO: rename here
-
+    run_robocopy(target_dir, temp_dir)
+    delete_symlink(folder.source_dir)
+    rename_folder(temp_dir, folder.source_dir)
     # TODO: delete target_dir here
