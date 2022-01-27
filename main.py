@@ -14,7 +14,6 @@ from folders import Folder, FolderLibrary
 
 @click.group(
     cls=DefaultGroup,
-    default="list",
     default_if_no_args=True,
     context_settings={"help_option_names": ["-h", "--help"]},
 )
@@ -36,13 +35,13 @@ def library_folder_option(function):
     )(function)
 
 
-@cli.command(name="list")
+@cli.command(name="list", default=True)
 @library_folder_option
 @click.pass_context
 def list_(ctx, library_folder: WindowsPath):
     """List folders in library"""
-    # TODO: correct help for default command
-    # click.echo(list_.get_help(ctx))
+    # Provide help from root context
+    click.echo(cli.get_help(ctx.parent))
     library = FolderLibrary(library_folder)
     table = tabulate(library.get_table_data(), headers="keys")
 
@@ -122,4 +121,4 @@ def remove(folder_path: WindowsPath, library_folder: WindowsPath):
 
 if __name__ == "__main__":
     cli()
-    print("gree")
+    # TODO: can we find invokations without a command here, instead of by using external module?
