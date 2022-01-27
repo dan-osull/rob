@@ -2,14 +2,14 @@ from pathlib import WindowsPath
 
 from click import ClickException
 
-from console import print_
+from console import print_, style_path
 from folders import Folder, FolderLibrary
 from robocopy import run_robocopy
 
 
 def test_dir_creation(path: WindowsPath) -> None:
     """Test write access by creating and deleting an empty folder"""
-    print_(f"Testing write access to {path}")
+    print_(f"Testing write access to {style_path(path)}")
     if path.exists():
         raise ClickException(f"{path} already exists")
     try:
@@ -24,7 +24,9 @@ def test_dir_creation(path: WindowsPath) -> None:
 
 
 def test_symlink_creation(source: WindowsPath, target: WindowsPath) -> None:
-    print_(f"Testing symlink creation from {source} to {target}")
+    print_(
+        f"Testing symlink creation from {style_path(source)} to {style_path(target)}"
+    )
     target.mkdir()
     try:
         create_symlink(source, target)
@@ -35,7 +37,7 @@ def test_symlink_creation(source: WindowsPath, target: WindowsPath) -> None:
 
 
 def rename_folder(source: WindowsPath, target: WindowsPath) -> None:
-    print_(f"Renaming {source=} to {target=}")
+    print_(f"Renaming {style_path(source)} to {style_path(target)}")
     try:
         source.rename(target)
     except PermissionError as e:
@@ -45,7 +47,7 @@ def rename_folder(source: WindowsPath, target: WindowsPath) -> None:
 
 
 def create_symlink(source: WindowsPath, target: WindowsPath) -> None:
-    print_(f"Making symlink from {source=} to {target=}")
+    print_(f"Making symlink from {style_path(source)} to {style_path(target)}")
     if not target.exists():
         raise ClickException(f"{target} does not exist")
     try:
@@ -54,12 +56,12 @@ def create_symlink(source: WindowsPath, target: WindowsPath) -> None:
         raise ClickException(f"{source} already exists") from e
     except OSError as e:
         raise ClickException(
-            "Permission denied when creating symlink. Run Command Prompt as Administrator or enable Windows Developer Mode."  # pylint: disable=line-too-long
+            "Permission denied when creating symlink. Run Command Prompt as Administrator or enable Windows Developer Mode."
         ) from e
 
 
 def delete_symlink(path: WindowsPath) -> None:
-    print_(f"Deleting symlink {path=}")
+    print_(f"Deleting symlink {style_path(path)}")
     if not path.is_symlink():
         raise ClickException(f"{path} is not a symlink")
     path.unlink()
@@ -69,13 +71,16 @@ def add_folder_actions(folder: Folder, library: FolderLibrary):
     """Filesystem actions for `add` command"""
     target_dir = folder.get_target_dir(library.library_folder)
 
+    print_("")
     print_("[bold]Running pre-flight checks[/bold]")
     test_dir_creation(target_dir)
     temp_dir = folder.get_temp_dir()
     test_dir_creation(temp_dir)
     test_symlink_creation(temp_dir, target_dir)
+    # TODO: check that destination drive has enough space
 
-    print_("Actions start")
+    print_("")
+    print_("[bold]Actions start[/bold]")
     rename_folder(folder.source_dir, temp_dir)
     run_robocopy(temp_dir, target_dir)
     create_symlink(folder.source_dir, target_dir)
@@ -90,6 +95,7 @@ def remove_folder_actions(folder: Folder, library: FolderLibrary):
         # TODO: how to handle? remove library entry?
     temp_dir = folder.get_temp_dir()
     test_dir_creation(temp_dir)
+    # TODO: check that destination drive has enough space
 
     run_robocopy(target_dir, temp_dir)
     delete_symlink(folder.source_dir)

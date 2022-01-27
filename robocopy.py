@@ -6,12 +6,15 @@ from time import sleep
 from click import ClickException
 from rich.progress import Progress
 
-from console import print_
+from console import print_, style_path
 
 
 def get_tree_size(path) -> int:
     """Return total size of files in given path and subdirs."""
     # https://www.python.org/dev/peps/pep-0471/
+    if not WindowsPath(path).exists():
+        # Avoid race with file creation
+        return 0
     total = 0
     for entry in os.scandir(path):
         if entry.is_dir(follow_symlinks=False):
@@ -22,7 +25,7 @@ def get_tree_size(path) -> int:
 
 
 def run_robocopy(source: WindowsPath, target: WindowsPath):
-    print_(f"Copying data from {source=} to {target=}")
+    print_(f"Copying data from {style_path(source)} to {style_path(target)}")
     source_size_bytes = get_tree_size(source)
 
     robocopy_exe = (
@@ -54,7 +57,7 @@ def run_robocopy(source: WindowsPath, target: WindowsPath):
         copy_progress = progress.add_task(
             "[green]Copying data...", total=source_size_bytes
         )
-        while proc.poll() == None:
+        while proc.poll() is None:
             # == None so that returncode 0 breaks loop
             progress.update(copy_progress, completed=get_tree_size(target))
             progress.refresh()
@@ -65,7 +68,7 @@ def run_robocopy(source: WindowsPath, target: WindowsPath):
         #    The source and destination directory trees are completely synchronized.
         # 1: One or more files were copied successfully (that is, new files have arrived).
         # https://ss64.com/nt/robocopy-exit.html
-        output = proc.stdout.read()
+        output = proc.stdout.read()  # type: ignore
         output = output.split("\n")
         output = [line for line in output if line]
         error_line = next((line for line in output if "ERROR" in line), None)

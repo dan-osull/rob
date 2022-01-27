@@ -6,7 +6,7 @@ from click_default_group import DefaultGroup
 from click_help_colors import HelpColorsGroup
 from tabulate import tabulate
 
-from console import console, print_, style_project_name
+from console import console, print_, style_library, style_path
 from exceptions import show_red_error
 from filesystem import add_folder_actions, remove_folder_actions
 from folders import Folder, FolderLibrary
@@ -59,9 +59,7 @@ def list_(ctx, library_folder: WindowsPath):
     print_("")
     console.rule(style="grey50")
     print_("")
-    print_(
-        f"{len(library.folders)} folder{plur_s} in {style_project_name()} library at [cyan]{library.library_folder}[/cyan]"  # pylint: disable=line-too-long
-    )
+    print_(f"{len(library.folders)} folder{plur_s} in {style_library(library)}")
     if table:
         print_("")
         print_(table)
@@ -81,7 +79,9 @@ def list_(ctx, library_folder: WindowsPath):
 def add(folder_path: WindowsPath, library_folder: WindowsPath):
     """Add FOLDER_PATH to library"""
     if folder_path.is_symlink():
-        raise ClickException(f"Cannot add a symlink. Is {folder_path} already managed?")
+        raise ClickException(
+            f"Cannot add folder. {folder_path} is already a symlink. Is it managed?"
+        )
 
     library = FolderLibrary(library_folder)
     if folder_path in library.source_dirs:
@@ -97,7 +97,9 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath):
     folder = Folder(source_dir=folder_path)
 
     print_(
-        f"Add {folder} to {style_project_name()} library at [cyan]{library.library_folder}[/cyan]?"
+        (
+            f"[bold]Add folder {style_path(folder.source_dir)} to {style_library(library)} ?[/bold]"
+        )
     )
     click.confirm(text="Confirm", abort=True)
     add_folder_actions(folder, library)
@@ -105,7 +107,10 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath):
     library.folders.append(folder)
     library.save()
 
-    print_(f"Added {folder}")
+    print_("")
+    print_(
+        f"[bold]Added {style_path(folder.source_dir)} to {style_library(library)} with name {style_path(folder.target_dir_name)}[/bold]"
+    )
 
 
 @cli.command(no_args_is_help=True)
@@ -123,7 +128,7 @@ def remove(folder_path: WindowsPath, library_folder: WindowsPath):
         raise ClickException(f"Cannot find info for folder: {folder_path}.")
 
     print_(
-        f"Remove {folder} from {style_project_name()} library at [cyan]{library.library_folder}[/cyan]?"  # pylint: disable=line-too-long
+        f"[bold]Remove folder {style_path(folder.source_dir)} from {style_library(library)} ?[/bold]"
     )
 
     click.confirm(
@@ -140,3 +145,5 @@ def remove(folder_path: WindowsPath, library_folder: WindowsPath):
 
 if __name__ == "__main__":
     cli()
+    # TODO: how to cleanup library and filesystem if left in an inconsistent state?
+    # TODO: how to handle failure part way through action?
