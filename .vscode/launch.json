@@ -8,10 +8,10 @@
             "name": "Python: Module",
             "type": "python",
             "request": "launch",
-            "module": "symbox",
+            "module": "main",
             "args": [
                 "list",
-                // "c:\\windows"
+                // "C:\\Git\\python_robsym_dooh\\example\\source\\A nice folder"
             ],
             "justMyCode": false,
         },

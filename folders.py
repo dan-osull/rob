@@ -4,29 +4,37 @@ from hashlib import sha256
 from pathlib import WindowsPath
 from typing import ClassVar, Optional, Union
 
+FILE_PREFIX = "rob"
+
 
 @dataclass
 class Folder:
-    """
-    A folder being managed by the tool
-    """
+    """A folder being managed by the tool"""
 
     field_names: ClassVar = ["source_dir", "target_dir_name"]
     source_dir: WindowsPath
-    "The path of the folder on the source disk"
+    """The path of the folder on the source disk. It becomes replaced by a symlink."""
 
     def __init__(self, source_dir: Union[WindowsPath, str]):
         self.source_dir = WindowsPath(source_dir)
 
     @property
     def target_dir_name(self) -> str:
-        "A new name for the folder that includes a hash of its path"
+        """A new name for the folder that includes a hash of its path"""
         # e.g. Git(6079d94ba840)
         return f"{self.source_dir.name}({self._source_dir_hash})"
 
+    def get_target_dir(self, library_folder: WindowsPath) -> WindowsPath:
+        """Target dir is subfolder of library. It is the destination for data."""
+        return library_folder.joinpath(self.target_dir_name).resolve()
+
     @property
     def temp_dir_name(self) -> str:
-        return f"_temp_{self.target_dir_name}"
+        return f"_{FILE_PREFIX}_temp_{self.target_dir_name}"
+
+    def get_temp_dir(self) -> WindowsPath:
+        """Temp dir is a sibling of the source. It is used for shuffling data."""
+        return self.source_dir.parent.joinpath(self.temp_dir_name).resolve()
 
     @property
     def _source_dir_hash(self) -> str:
@@ -39,7 +47,7 @@ class Folder:
 
 @dataclass
 class FolderLibrary:
-    config_filename: ClassVar = "symbox-folders.json"
+    config_filename: ClassVar = f"{FILE_PREFIX}-folders.json"
     config_path: WindowsPath
     folders: list[Folder]
 
@@ -53,7 +61,7 @@ class FolderLibrary:
 
     @property
     def library_folder(self) -> WindowsPath:
-        "Library is the folder that contains config file"
+        """The library is the folder that contains the config file"""
         return self.config_path.parent
 
     @property

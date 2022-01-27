@@ -6,12 +6,13 @@ from rich import print  # pylint: disable=redefined-builtin
 from tabulate import tabulate
 
 from exceptions import show_red_error
+from filesystem import add_folder_actions
 from folders import Folder, FolderLibrary
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
 def cli():
-    "Utility for..."
+    """Utility for..."""
     # TODO: doesn't change color of subclasses with custom show() e.g. error on exists=True
     ClickException.show = show_red_error
 
@@ -31,7 +32,7 @@ def library_folder_option(function):
 @cli.command(name="list")
 @library_folder_option
 def list_(library_folder: WindowsPath):
-    "List folders in library"
+    """List folders in library"""
     library = FolderLibrary(library_folder)
     table = tabulate(library.get_table_data(), headers="keys")
 
@@ -58,7 +59,7 @@ def list_(library_folder: WindowsPath):
     ),
 )
 def add(folder_path: WindowsPath, library_folder: WindowsPath):
-    "Add FOLDER_PATH to library"
+    """Add FOLDER_PATH to library"""
     library = FolderLibrary(library_folder)
     if folder_path in library.source_dirs:
         raise ClickException(f"Cannot add folder. {folder_path} is already managed.")
@@ -69,6 +70,8 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath):
 
     print(f"Add {folder} to [cyan]{library.library_folder}[/cyan] library?")
     click.confirm(text="Confirm", abort=True)
+    # add_folder_actions(folder, library)
+
     library.folders.append(folder)
     library.save()
 
@@ -83,7 +86,7 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath):
     type=click.Path(path_type=WindowsPath),
 )
 def remove(folder_path: WindowsPath, library_folder: WindowsPath):
-    "Remove FOLDER_PATH from library"
+    """Remove FOLDER_PATH from library"""
     library = FolderLibrary(library_folder)
     folder = library.get_folder_by_path(folder_path)
     if not folder:
