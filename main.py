@@ -98,11 +98,7 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath):
 
     folder = Folder(source_dir=folder_path)
 
-    print_(
-        (
-            f"[bold]Add folder {style_path(folder.source_dir)} to {style_library(library)} ?[/bold]"
-        )
-    )
+    print_(f"[bold]Add folder {style_path(folder.source_dir)} to {style_library(library)} ?[/bold]")
     click.confirm(text="Confirm", abort=True)
     add_folder_actions(folder, library)
 
