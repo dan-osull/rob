@@ -56,17 +56,6 @@ python-versions = ">=3.6"
 colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
-name = "click-default-group"
-version = "1.2.2"
-description = "Extends click.Group to invoke a command without explicit subcommand name"
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-click = "*"
-
-[[package]]
 name = "click-help-colors"
 version = "0.9.1"
 description = "Colorization of help messages in Click"
@@ -248,7 +237,7 @@ python-versions = "*"
 
 [[package]]
 name = "rich"
-version = "11.0.0"
+version = "11.1.0"
 description = "Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal"
 category = "main"
 optional = false
@@ -308,7 +297,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10,<3.11"
-content-hash = "720fbe69d56d5b145a8c984ee97173751abe2bbb3dcf109789175511ae26165f"
+content-hash = "f9ced10583dc35458de668619d46c7c214a0c11d936d1e7059cd4b76d864394f"
 
 [metadata.files]
 altgraph = [
@@ -326,9 +315,6 @@ black = [
 click = [
     {file = "click-8.0.3-py3-none-any.whl", hash = "sha256:353f466495adaeb40b6b5f592f9f91cb22372351c84caeb068132442a4518ef3"},
     {file = "click-8.0.3.tar.gz", hash = "sha256:410e932b050f5eed773c4cda94de75971c89cdb3155a72a0831139a79e5ecb5b"},
-]
-click-default-group = [
-    {file = "click-default-group-1.2.2.tar.gz", hash = "sha256:d9560e8e8dfa44b3562fbc9425042a0fd6d21956fcc2db0077f63f34253ab904"},
 ]
 click-help-colors = [
     {file = "click-help-colors-0.9.1.tar.gz", hash = "sha256:78cbcf30cfa81c5fc2a52f49220121e1a8190cd19197d9245997605d3405824d"},
@@ -441,8 +427,8 @@ pywin32-ctypes = [
     {file = "pywin32_ctypes-0.2.0-py2.py3-none-any.whl", hash = "sha256:9dc2d991b3479cc2df15930958b674a48a227d5361d413827a4cfd0b5876fc98"},
 ]
 rich = [
-    {file = "rich-11.0.0-py3-none-any.whl", hash = "sha256:d7a8086aa1fa7e817e3bba544eee4fd82047ef59036313147759c11475f0dafd"},
-    {file = "rich-11.0.0.tar.gz", hash = "sha256:c32a8340b21c75931f157466fefe81ae10b92c36a5ea34524dff3767238774a4"},
+    {file = "rich-11.1.0-py3-none-any.whl", hash = "sha256:365ebcdbfb3aa8d4b0ed2490e0fbf7b886a39d14eb7ea5fb7aece950835e1eed"},
+    {file = "rich-11.1.0.tar.gz", hash = "sha256:43e03d8eec12e21beaecc22c828a41c4247356414a12d5879834863d4ad53816"},
 ]
 tabulate = [
     {file = "tabulate-0.8.9-py3-none-any.whl", hash = "sha256:d7c013fe7abbc5e491394e10fa845f8f32fe54f8dc60c6622c6cf482d25d47e4"},

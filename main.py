@@ -2,34 +2,18 @@ from pathlib import WindowsPath
 
 import click
 from click import ClickException
-from click_default_group import DefaultGroup
 from click_help_colors import HelpColorsGroup
-from tabulate import tabulate
 
-from console import console, print_, style_library, style_path, style_project
+from console import (
+    print_,
+    print_library_table,
+    style_library,
+    style_path,
+    style_project,
+)
 from exceptions import show_red_error
 from filesystem import add_folder_actions, remove_folder_actions
 from folders import Folder, FolderLibrary
-
-
-class ClickGroup(DefaultGroup, HelpColorsGroup):
-    ...
-
-
-@click.group(
-    cls=ClickGroup,
-    help_headers_color="green",
-    help_options_color="cyan",
-    default_if_no_args=True,
-    context_settings={"help_option_names": ["-h", "--help"]},
-)
-def cli():
-    """Utility for..."""
-    print_()
-    print_(style_project())
-    print_()
-    # TODO: doesn't change color of subclasses with custom show() e.g. error on exists=True
-    ClickException.show = show_red_error
 
 
 def library_folder_option(function):
@@ -44,36 +28,37 @@ def library_folder_option(function):
     )(function)
 
 
+@click.group(
+    cls=HelpColorsGroup,
+    help_headers_color="green",
+    help_options_color="cyan",
+    invoke_without_command=True,
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
+@click.pass_context
+@library_folder_option
+def cli(ctx, library_folder: WindowsPath):
+    """Utility for..."""
+    ClickException.show = show_red_error
+    # TODO: doesn't change color of subclasses with custom show() e.g. error on exists=True
+    print_()
+    print_(style_project())
+    print_()
+
+    if ctx.invoked_subcommand is None:
+        # Show help and list library if no command provided
+        click.echo(cli.get_help(ctx))
+        print_("")
+        print_library_table(library_folder)
+
+
 @cli.command(
     name="list",
-    default=True,
 )
 @library_folder_option
-@click.pass_context
-def list_(ctx, library_folder: WindowsPath):
+def list_(library_folder: WindowsPath):
     """List folders in library"""
-
-    library = FolderLibrary(library_folder)
-    plur_s = "" if len(library.folders) == 1 else "s"
-    table = tabulate(library.get_table_data(), headers="keys")
-
-    # Show help from root context
-    click.echo(cli.get_help(ctx))
-    # TODO: missing --library-folder option
-    print_("")
-    console.rule(style="grey50")
-    print_("")
-    print_(f"{len(library.folders)} folder{plur_s} in {style_library(library)}")
-    if table:
-        print_("")
-        table = table.split("\n", 1)
-        # Header row
-        print_(f"[green]{table[0]}[/green]")
-        table = table[1].split("\n", 1)
-        # Divider row
-        print_(f"{table[0]}")
-        print_(style_path(table[1]))
-    print_("")
+    print_library_table(library_folder)
 
 
 @cli.command(no_args_is_help=True)
@@ -148,6 +133,6 @@ def remove(folder_path: str, library_folder: WindowsPath):
 
 
 if __name__ == "__main__":
-    cli()
+    cli()  # pylint: disable=no-value-for-parameter
     # TODO: how to cleanup library and filesystem if left in an inconsistent state?
     # TODO: how to handle failure part way through action?

@@ -9,6 +9,7 @@
     "python.linting.enabled": true,
     "python.linting.pylintArgs": [
         "--disable=C0111", // missing docstring
+        "--disable=C0301", // line too long
         "--good-names=e"
     ]
 }
