@@ -34,7 +34,7 @@ class Folder:
     def get_temp_dir(self) -> WindowsPath:
         """Temp dir is a sibling of the source. It is used for shuffling data."""
         # TODO: can we resolve() this?
-        return self.source_dir.parent.joinpath(self.temp_dir_name)
+        return self.source_dir.parent.joinpath(self.temp_dir_name).resolve()
 
     @property
     def _source_dir_hash(self) -> str:
@@ -68,8 +68,14 @@ class FolderLibrary:
     def source_dirs(self) -> list[WindowsPath]:
         return [folder.source_dir for folder in self.folders]
 
-    def get_folder_by_path(self, path: WindowsPath) -> Optional[Folder]:
-        return next((x for x in self.folders if x.source_dir == path), None)
+    def find_folder(self, search_term: str) -> Optional[Folder]:
+        """Search library using `source_dir` and `target_dir_name` fields"""
+        match = next(
+            (x for x in self.folders if x.source_dir == WindowsPath(search_term)), None
+        )
+        if match:
+            return match
+        return next((x for x in self.folders if x.target_dir_name == search_term), None)
 
     def get_table_data(self) -> list[dict]:
         return [item.get_table_data() for item in self.folders]

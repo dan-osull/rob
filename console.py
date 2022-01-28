@@ -1,4 +1,5 @@
-from typing import Any
+from pathlib import WindowsPath
+from typing import Union
 
 from rich.console import Console
 
@@ -7,13 +8,19 @@ from folders import FolderLibrary
 
 # https://rich.readthedocs.io/en/stable/appendix/colors.html#appendix-colors
 
-console = Console()
+console = Console(highlight=False)
 print_ = console.print
 
 
+def style_project() -> str:
+    return f"[bold][purple]{PROJECT_NAME}[/purple][/bold]"
+
+
 def style_library(library: FolderLibrary) -> str:
-    return f"[purple]{PROJECT_NAME}[/purple] library at [purple]{str(library.library_folder)}[/purple]"
+    return (
+        f"{style_project()} library at [purple]{str(library.library_folder)}[/purple]"
+    )
 
 
-def style_path(obj: Any) -> str:
+def style_path(obj: Union[WindowsPath, str]) -> str:
     return f"[cyan]{str(obj)}[/cyan]"

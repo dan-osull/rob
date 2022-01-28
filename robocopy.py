@@ -34,6 +34,7 @@ def run_robocopy(source: WindowsPath, target: WindowsPath):
         .resolve()
     )
     robocopy_args = [
+        str(robocopy_exe),
         str(source),
         str(target),
         "/E",  # copy subdirectories, including Empty ones.
@@ -47,7 +48,6 @@ def run_robocopy(source: WindowsPath, target: WindowsPath):
         raise ClickException("{target} already exists")
 
     proc = subprocess.Popen(
-        executable=robocopy_exe,
         args=robocopy_args,
         stdout=subprocess.PIPE,
         # stderr included for completeness, robocopy doesn't seem to use it

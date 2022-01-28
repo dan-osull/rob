@@ -80,11 +80,12 @@ def add_folder_actions(folder: Folder, library: FolderLibrary):
     test_dir_creation(target_dir)
     temp_dir = folder.get_temp_dir()
     test_dir_creation(temp_dir)
+    # Test symlink with sibling of source dir - it should have similar permissions
     test_symlink_creation(temp_dir, target_dir)
     # TODO: check that destination drive has enough space
 
     print_("")
-    print_("[bold]Actions start[/bold]")
+    print_("[bold]Actions[/bold]")
     rename_folder(folder.source_dir, temp_dir)
     run_robocopy(temp_dir, target_dir)
     create_symlink(folder.source_dir, target_dir)
