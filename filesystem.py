@@ -29,8 +29,8 @@ def test_symlink_creation(source: WindowsPath, target: WindowsPath) -> None:
     )
     target.mkdir()
     try:
-        create_symlink(source, target)
-        delete_symlink(source)
+        create_symlink(source, target, quiet=True)
+        delete_symlink(source, quiet=True)
     finally:
         if target.exists():
             target.rmdir()
@@ -46,8 +46,11 @@ def rename_folder(source: WindowsPath, target: WindowsPath) -> None:
         ) from e
 
 
-def create_symlink(source: WindowsPath, target: WindowsPath) -> None:
-    print_(f"Making symlink from {style_path(source)} to {style_path(target)}")
+def create_symlink(
+    source: WindowsPath, target: WindowsPath, quiet: bool = False
+) -> None:
+    if not quiet:
+        print_(f"Making symlink from {style_path(source)} to {style_path(target)}")
     if not target.exists():
         raise ClickException(f"{target} does not exist")
     try:
@@ -60,8 +63,9 @@ def create_symlink(source: WindowsPath, target: WindowsPath) -> None:
         ) from e
 
 
-def delete_symlink(path: WindowsPath) -> None:
-    print_(f"Deleting symlink {style_path(path)}")
+def delete_symlink(path: WindowsPath, quiet: bool = False) -> None:
+    if not quiet:
+        print_(f"Deleting symlink {style_path(path)}")
     if not path.is_symlink():
         raise ClickException(f"{path} is not a symlink")
     path.unlink()
@@ -72,7 +76,7 @@ def add_folder_actions(folder: Folder, library: FolderLibrary):
     target_dir = folder.get_target_dir(library.library_folder)
 
     print_("")
-    print_("[bold]Running pre-flight checks[/bold]")
+    print_("[bold]Pre-flight checks[/bold]")
     test_dir_creation(target_dir)
     temp_dir = folder.get_temp_dir()
     test_dir_creation(temp_dir)

@@ -18,8 +18,8 @@ class ClickGroup(DefaultGroup, HelpColorsGroup):
 
 @click.group(
     cls=ClickGroup,
-    help_headers_color="yellow",
-    help_options_color="green",
+    help_headers_color="green",
+    help_options_color="cyan",
     default_if_no_args=True,
     context_settings={"help_option_names": ["-h", "--help"]},
 )
@@ -37,7 +37,7 @@ def library_folder_option(function):
         type=click.Path(
             exists=True, file_okay=False, path_type=WindowsPath, resolve_path=True
         ),
-        help="The path of the library folder. The current folder is used by default.",
+        help="The path of the library. The current folder is used by default.",
     )(function)
 
 
@@ -62,7 +62,9 @@ def list_(ctx, library_folder: WindowsPath):
     print_(f"{len(library.folders)} folder{plur_s} in {style_library(library)}")
     if table:
         print_("")
-        print_(table)
+        table = table.split("\n", 1)
+        print_(f"[green]{table[0]}[/green]")
+        print_(str(table[1]))
     print_("")
 
 

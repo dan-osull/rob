@@ -9,7 +9,7 @@ from rich.progress import Progress
 from console import print_, style_path
 
 
-def get_tree_size(path) -> int:
+def get_tree_size(path: WindowsPath) -> int:
     """Return total size of files in given path and subdirs."""
     # https://www.python.org/dev/peps/pep-0471/
     if not WindowsPath(path).exists():
@@ -18,7 +18,7 @@ def get_tree_size(path) -> int:
     total = 0
     for entry in os.scandir(path):
         if entry.is_dir(follow_symlinks=False):
-            total += get_tree_size(entry.path)
+            total += get_tree_size(entry.path)  # type: ignore
         else:
             total += entry.stat(follow_symlinks=False).st_size
     return total
@@ -44,6 +44,8 @@ def run_robocopy(source: WindowsPath, target: WindowsPath):
         "/NFL",  # No File List - don't log file names.
         "/NP",  # No Progress - don't display percentage copied.
     ]
+    if target.exists():
+        raise ClickException("{target} already exists")
 
     proc = subprocess.Popen(
         executable=robocopy_exe,
@@ -53,7 +55,7 @@ def run_robocopy(source: WindowsPath, target: WindowsPath):
         stderr=subprocess.STDOUT,
         text=True,
     )
-    with Progress(auto_refresh=False) as progress:
+    with Progress(auto_refresh=False, transient=True) as progress:
         copy_progress = progress.add_task(
             "[green]Copying data...", total=source_size_bytes
         )

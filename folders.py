@@ -11,7 +11,6 @@ from config import PROJECT_NAME
 class Folder:
     """A folder being managed by the tool"""
 
-    field_names: ClassVar = ["source_dir", "target_dir_name"]
     source_dir: WindowsPath
     """The path of the folder on the source disk. It becomes replaced by a symlink."""
 
@@ -42,7 +41,7 @@ class Folder:
         return sha256(str(self.source_dir).lower().encode("utf-8")).hexdigest()[:12]
 
     def get_table_data(self) -> dict:
-        return {field: getattr(self, field) for field in self.field_names}
+        return {"Path": self.source_dir, "Name": self.target_dir_name}
 
 
 @dataclass
