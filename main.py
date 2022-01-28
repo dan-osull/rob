@@ -84,14 +84,13 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath):
         raise ClickException(
             f"Cannot add folder. {folder_path} is already a symlink. Is it managed?"
         )
-
+    # Resolve path to fix capitalisation
+    # Do this after check to avoid resolving symlink!    
+    folder_path = folder_path.resolve()
     library = FolderLibrary(library_folder)
     if folder_path in library.source_dirs:
         raise ClickException(f"Cannot add folder. {folder_path} is already managed.")
 
-    # Resolve path to correct capitalisation
-    # Do this after library has been checked to avoid resolving symlink!
-    folder_path = folder_path.resolve()
     # TODO: should not be possible to add child (and parent?) of existing folder
     # TODO: don't allow root of disk
     # TODO: source and dest should be on different disks
