@@ -34,7 +34,6 @@ def run_robocopy(source: WindowsPath, target: WindowsPath):
         .resolve()
     )
     robocopy_args = [
-        str(robocopy_exe),
         str(source),
         str(target),
         "/E",  # copy subdirectories, including Empty ones.
