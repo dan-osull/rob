@@ -71,7 +71,7 @@ def delete_symlink(path: WindowsPath, quiet: bool = False) -> None:
     path.unlink()
 
 
-def add_folder_actions(folder: Folder, library: FolderLibrary):
+def add_folder_actions(folder: Folder, library: FolderLibrary) -> None:
     """Filesystem actions for `add` command"""
     target_dir = folder.get_target_dir(library.library_folder)
 
@@ -92,7 +92,7 @@ def add_folder_actions(folder: Folder, library: FolderLibrary):
     # TODO: delete source_dir here
 
 
-def remove_folder_actions(folder: Folder, library: FolderLibrary):
+def remove_folder_actions(folder: Folder, library: FolderLibrary) -> None:
     """Filesystem actions for `remove` command"""
     target_dir = folder.get_target_dir(library.library_folder)
     if not target_dir.exists():

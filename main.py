@@ -5,6 +5,8 @@ from click import ClickException
 from click_help_colors import HelpColorsGroup
 
 from console import (
+    HELP_HEADERS_COLOR,
+    HELP_OPTIONS_COLOR,
     print_,
     print_library_table,
     style_library,
@@ -30,8 +32,8 @@ def library_folder_option(function):
 
 @click.group(
     cls=HelpColorsGroup,
-    help_headers_color="green",
-    help_options_color="cyan",
+    help_headers_color=HELP_HEADERS_COLOR,
+    help_options_color=HELP_OPTIONS_COLOR,
     invoke_without_command=True,
     context_settings={"help_option_names": ["-h", "--help"]},
 )
@@ -78,7 +80,7 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath):
             f"Cannot add folder. {folder_path} is a symlink. Is it already in library?"
         )
     # Resolve path to fix capitalisation
-    # Do this after check to avoid resolving symlink!
+    # Do this after symlink check to avoid resolving symlink!
     folder_path = folder_path.resolve()
     library = FolderLibrary(library_folder)
     if folder_path in library.source_dirs:

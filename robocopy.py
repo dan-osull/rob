@@ -55,12 +55,10 @@ def run_robocopy(source: WindowsPath, target: WindowsPath):
         text=True,
     )
     with Progress(auto_refresh=False, transient=True) as progress:
-        copy_progress = progress.add_task(
-            "[green]Copying data...", total=source_size_bytes
-        )
+        task_id = progress.add_task("[green]Copying data...", total=source_size_bytes)
         while proc.poll() is None:
             # == None so that returncode 0 breaks loop
-            progress.update(copy_progress, completed=get_tree_size(target))
+            progress.update(task_id, completed=get_tree_size(target))
             progress.refresh()
             sleep(2)
 
@@ -74,7 +72,7 @@ def run_robocopy(source: WindowsPath, target: WindowsPath):
         output = [line for line in output if line]
         error_line = next((line for line in output if "ERROR" in line), None)
         if error_line:
-            # Get all lines that appear after ERROR
+            # Get ERROR and all following lines
             error = output[output.index(error_line) :]
         else:
             error = None
