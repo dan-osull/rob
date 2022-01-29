@@ -1,5 +1,5 @@
 from pathlib import WindowsPath
-from typing import Callable, Union
+from typing import Union
 
 from rich.console import Console
 from tabulate import tabulate
@@ -40,10 +40,8 @@ def style_project() -> str:
 
 
 def style_library(library: FolderLibrary) -> str:
-    # BUG: "rob -l \" prints "D:[/purple]"
-    return (
-        f"{style_project()} library at [purple]{str(library.library_folder)}[/purple]"
-    )
+    library_path = str(library.library_folder).strip("\\")
+    return f"{style_project()} library at [purple]{library_path}[/purple]"
 
 
 def style_path(obj: Union[WindowsPath, str]) -> str:
