@@ -14,7 +14,7 @@ def run_robocopy(
     target: WindowsPath,
     dry_run: bool = False,
 ):
-    from filesystem import get_tree_size
+    from filesystem import get_dir_size
 
     msg = f"Copying data from {style_path(source)} to {style_path(target)}"
     if target.exists():
@@ -42,7 +42,7 @@ def run_robocopy(
         "/NFL",  # No File List - don't log file names.
         "/NP",  # No Progress - don't display percentage copied.
     ]
-    source_size_bytes = get_tree_size(source)
+    source_size_bytes = get_dir_size(source)
 
     proc = subprocess.Popen(
         args=robocopy_args,
@@ -57,9 +57,9 @@ def run_robocopy(
         )
         while proc.poll() is None:
             # "is None" so that returncode 0 breaks loop
-            progress.update(task_id, completed=get_tree_size(target))
+            progress.update(task_id, completed=get_dir_size(target))
             progress.refresh()
-            sleep(2)
+            sleep(5)
 
     if proc.returncode not in [0, 1]:
         # 0: No errors occurred, and no copying was done.

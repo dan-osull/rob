@@ -27,7 +27,7 @@ def print_library_table(library_folder: WindowsPath) -> None:
         print_("")
         table = table.split("\n", 1)
         # Header row
-        print_(f"{table[0]}")
+        print_(f"[bright_white]{table[0]}[/bright_white]")
         table = table[1].split("\n", 1)
         # Divider row
         print_(f"{table[0]}")

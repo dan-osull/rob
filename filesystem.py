@@ -1,6 +1,7 @@
 import os
 import shutil
 from pathlib import WindowsPath
+from typing import Union
 
 from click import ClickException
 
@@ -9,19 +10,23 @@ from library import Folder, FolderLibrary
 from robocopy import run_robocopy
 
 
-def get_tree_size(path: WindowsPath) -> int:
+def get_dir_size(path: WindowsPath) -> int:
     """Return total size of files in given path and subdirs."""
-    # https://www.python.org/dev/peps/pep-0471/
-    if not WindowsPath(path).exists():
+    if not path.exists():
         # Avoid race with file creation
         return 0
-    total = 0
-    for entry in os.scandir(path):
-        if entry.is_dir(follow_symlinks=False):
-            total += get_tree_size(entry.path)  # type: ignore
-        else:
-            total += entry.stat(follow_symlinks=False).st_size
-    return total
+
+    def get_tree_size(path) -> int:
+        # https://www.python.org/dev/peps/pep-0471/
+        total = 0
+        for entry in os.scandir(path):
+            if entry.is_dir(follow_symlinks=False):
+                total += get_tree_size(entry.path)
+            else:
+                total += entry.stat(follow_symlinks=False).st_size
+        return total
+
+    return get_tree_size(path)
 
 
 def test_dir_creation(path: WindowsPath) -> None:
@@ -128,7 +133,9 @@ def delete_folder(path: WindowsPath, dry_run: bool = False) -> None:
     print_success()
 
 
-def add_folder_actions(folder: Folder, library: FolderLibrary, dry_run: bool) -> None:
+def run_add_folder_actions(
+    folder: Folder, library: FolderLibrary, dry_run: bool
+) -> None:
     """Filesystem actions for `add` command"""
     target_dir = folder.get_target_dir(library.library_folder)
 
@@ -147,7 +154,7 @@ def add_folder_actions(folder: Folder, library: FolderLibrary, dry_run: bool) ->
     delete_folder(temp_dir, dry_run=dry_run)
 
 
-def remove_folder_actions(
+def run_remove_folder_actions(
     folder: Folder, library: FolderLibrary, dry_run: bool
 ) -> None:
     """Filesystem actions for `remove` command"""

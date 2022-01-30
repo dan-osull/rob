@@ -16,7 +16,7 @@ from console import (
     style_path,
 )
 from exceptions import show_red_error
-from filesystem import add_folder_actions, remove_folder_actions
+from filesystem import run_add_folder_actions, run_remove_folder_actions
 from library import Folder, FolderLibrary
 
 
@@ -108,7 +108,7 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath, dry_run: bool):
         f"[bold]Add folder {style_path(folder.source_dir)} to {style_library(library)}[/bold]"
     )
     confirm_action(dry_run=dry_run)
-    add_folder_actions(folder, library, dry_run)
+    run_add_folder_actions(folder, library, dry_run)
 
     if not dry_run:
         library.folders.append(folder)
@@ -117,7 +117,7 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath, dry_run: bool):
             f"\n[bold]Added {style_path(folder.source_dir)} with name {style_path(folder.target_dir_name)} to {style_library(library)} [/bold]"
         )
         print_(
-            f"\nData is now in subfolder with name {style_path(folder.target_dir_name)}"
+            f"Data is now in subfolder with name {style_path(folder.target_dir_name)}"
         )
         print_(f"{style_path(folder.source_dir)} [bold]is[/bold] a symlink")
     else:
@@ -140,7 +140,7 @@ def remove(folder_path: str, library_folder: WindowsPath, dry_run: bool):
         f"[bold]Remove folder {style_path(folder.source_dir)} with name {style_path(folder.target_dir_name)} from {style_library(library)}[/bold]"
     )
     confirm_action(dry_run=dry_run)
-    remove_folder_actions(folder, library, dry_run=dry_run)
+    run_remove_folder_actions(folder, library, dry_run=dry_run)
 
     if not dry_run:
         library.folders.remove(folder)
@@ -148,7 +148,7 @@ def remove(folder_path: str, library_folder: WindowsPath, dry_run: bool):
         print_(
             f"\n[bold]Removed {style_path(folder.source_dir)} with name {style_path(folder.target_dir_name)} from {style_library(library)} [/bold]"
         )
-        print_(f"\nData is now at {style_path(folder.source_dir)}")
+        print_(f"Data is now at {style_path(folder.source_dir)}")
         print_(f"{style_path(folder.source_dir)} is [bold]not[/bold] a symlink")
     else:
         print_success("\nDry run result:")
