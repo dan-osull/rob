@@ -26,7 +26,7 @@ def get_tree_size(path: WindowsPath) -> int:
 
 def test_dir_creation(path: WindowsPath) -> None:
     """Test write access by creating and deleting an empty folder"""
-    print_(f" Testing write access to {style_path(path)}", end="")
+    print_(f"Testing write access to {style_path(path)}", end="")
     if path.exists():
         raise ClickException(f"{path} already exists")
     try:
@@ -43,7 +43,7 @@ def test_dir_creation(path: WindowsPath) -> None:
 
 def test_symlink_creation(source: WindowsPath, target: WindowsPath) -> None:
     print_(
-        f" Testing symlink creation from {style_path(source)} to {style_path(target)}",
+        f"Testing symlink creation from {style_path(source)} to {style_path(target)}",
         end="",
     )
     target.mkdir()
@@ -59,7 +59,7 @@ def test_symlink_creation(source: WindowsPath, target: WindowsPath) -> None:
 def rename_folder(
     source: WindowsPath, target: WindowsPath, dry_run: bool = False
 ) -> None:
-    print_(f" Renaming {style_path(source)} to {style_path(target)}", end="")
+    print_(f"Renaming {style_path(source)} to {style_path(target)}", end="")
     if dry_run:
         print_skipped()
         return
@@ -78,7 +78,8 @@ def create_symlink(
 ) -> None:
     if not quiet:
         print_(
-            f" Making symlink from {style_path(source)} to {style_path(target)}", end=""
+            f"Making symlink from {style_path(source)} to {style_path(target)}",
+            end="",
         )
     if dry_run:
         print_skipped()
@@ -102,9 +103,11 @@ def delete_symlink(
     path: WindowsPath, quiet: bool = False, dry_run: bool = False
 ) -> None:
     if not quiet:
-        print_(f" Deleting symlink {style_path(path)}", end="")
+        print_(f"Deleting symlink {style_path(path)}", end="")
     if not path.is_symlink():
         raise ClickException(f"{path} is not a symlink")
+    if dry_run and not quiet:
+        print_skipped()
     if dry_run:
         return
 
@@ -114,7 +117,7 @@ def delete_symlink(
 
 
 def delete_folder(path: WindowsPath, dry_run: bool = False) -> None:
-    print_(f" Deleting folder {style_path(path)}", end="")
+    print_(f"Deleting folder {style_path(path)}", end="")
     if path.is_symlink():
         raise ClickException(f"Cannot delete. {path} is a symlink.")
     if dry_run:
@@ -156,7 +159,7 @@ def remove_folder_actions(
 
     print_("\n[bold]Pre-flight checks[/bold]")
     test_dir_creation(temp_dir)
-    # TODO: test write access to library folder
+    test_dir_creation(library.get_temp_dir())
     # TODO: check that destination drive has enough space
 
     print_("\n[bold]Actions[/bold]")

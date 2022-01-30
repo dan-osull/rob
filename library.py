@@ -77,6 +77,10 @@ class FolderLibrary:
     def get_table_data(self) -> list[dict]:
         return [item.get_table_data() for item in self.folders]
 
+    def get_temp_dir(self) -> WindowsPath:
+        """Temporary directory in library for testing write access"""
+        return self.library_folder.joinpath(f"_{PROJECT_NAME}_temp_").resolve()
+
     def save(self) -> None:
         with open(self.config_path, "w", encoding="utf8") as file:
             file.write(json.dumps([str(item.source_dir) for item in self.folders]))

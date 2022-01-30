@@ -1,4 +1,4 @@
-from pathlib import Path, WindowsPath
+from pathlib import WindowsPath
 from typing import Union
 
 import click
@@ -33,7 +33,6 @@ def print_library_table(library_folder: WindowsPath) -> None:
         print_(f"{table[0]}")
         # Table body
         print_(style_path(table[1]))
-    print_("")
 
 
 def print_success(msg: str = "") -> None:
@@ -45,7 +44,9 @@ def print_skipped() -> None:
 
 
 def print_title() -> None:
-    logo_text = Path("logo.txt").read_text(encoding="utf8")
+    # Font Slant at https://patorjk.com/software/taag/#p=display&f=Slant&t=rob
+    # See logo.txt for original
+    logo_text = "               __\n   _________  / /_ \n  / ___/ __ \\/ __ \\\n / /  / /_/ / /_/ /\n/_/   \\____/_.___/ \n"
     print_(f"[bold][purple]{logo_text}[/purple][/bold]")
 
 

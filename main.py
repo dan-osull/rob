@@ -117,9 +117,9 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath, dry_run: bool):
             f"\n[bold]Added {style_path(folder.source_dir)} with name {style_path(folder.target_dir_name)} to {style_library(library)} [/bold]"
         )
         print_(
-            f" Data is now in subfolder with name {style_path(folder.target_dir_name)}"
+            f"\nData is now in subfolder with name {style_path(folder.target_dir_name)}"
         )
-        print_(f" {style_path(folder.source_dir)} [bold]is[/bold] a symlink")
+        print_(f"{style_path(folder.source_dir)} [bold]is[/bold] a symlink")
     else:
         print_success("\nDry run result:")
 
@@ -134,16 +134,12 @@ def remove(folder_path: str, library_folder: WindowsPath, dry_run: bool):
     library = FolderLibrary(library_folder)
     folder = library.find_folder(folder_path)
     if not folder:
-        raise ClickException(f"Cannot find info for folder: {folder_path}.")
+        raise ClickException(f"Cannot find folder information: {folder_path}.")
 
     print_(
         f"[bold]Remove folder {style_path(folder.source_dir)} with name {style_path(folder.target_dir_name)} from {style_library(library)}[/bold]"
     )
-
-    click.confirm(
-        text="Confirm",
-        abort=True,
-    )
+    confirm_action(dry_run=dry_run)
     remove_folder_actions(folder, library, dry_run=dry_run)
 
     if not dry_run:
@@ -152,8 +148,8 @@ def remove(folder_path: str, library_folder: WindowsPath, dry_run: bool):
         print_(
             f"\n[bold]Removed {style_path(folder.source_dir)} with name {style_path(folder.target_dir_name)} from {style_library(library)} [/bold]"
         )
-        print_(f" Data is now at {style_path(folder.source_dir)}")
-        print_(f" {style_path(folder.source_dir)} is [bold]not[/bold] a symlink")
+        print_(f"\nData is now at {style_path(folder.source_dir)}")
+        print_(f"{style_path(folder.source_dir)} is [bold]not[/bold] a symlink")
     else:
         print_success("\nDry run result:")
 

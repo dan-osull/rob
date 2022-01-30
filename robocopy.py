@@ -16,7 +16,7 @@ def run_robocopy(
 ):
     from filesystem import get_tree_size
 
-    msg = f" Copying data from {style_path(source)} to {style_path(target)}"
+    msg = f"Copying data from {style_path(source)} to {style_path(target)}"
     if target.exists():
         print_(msg)
         raise ClickException("{target} already exists")
@@ -51,12 +51,12 @@ def run_robocopy(
         stderr=subprocess.STDOUT,
         text=True,
     )
-    with Progress(auto_refresh=False) as progress:
+    with Progress(auto_refresh=False, transient=True) as progress:
         task_id = progress.add_task(
-            " [green]Copying data...[/green]", total=source_size_bytes
+            "[green]Copying data...[/green]", total=source_size_bytes
         )
         while proc.poll() is None:
-            # == None so that returncode 0 breaks loop
+            # "is None" so that returncode 0 breaks loop
             progress.update(task_id, completed=get_tree_size(target))
             progress.refresh()
             sleep(2)
@@ -76,3 +76,5 @@ def run_robocopy(
         else:
             error = None
         raise ClickException(f"Robocopy: {error}")
+
+    print_("[green]Data copy complete[/green]")
