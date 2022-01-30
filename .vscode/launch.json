@@ -10,10 +10,14 @@
             "request": "launch",
             "module": "main",
             "args": [
+                // "list",
+                // "add",
                 "remove",
-                "D:\\temp\\1",
-                "-l",
-                "D:\\rob_library"
+                "d:\\temp\\smalldata",
+                "--library-folder",
+                "d:\\rob_library",
+                // "--help",
+                // "--dry-run",
             ],
             "justMyCode": false,
         },

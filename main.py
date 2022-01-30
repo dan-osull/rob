@@ -63,8 +63,20 @@ def list_(library_folder: WindowsPath):
     print_library_table(library_folder)
 
 
+def dry_run_option(function):
+    return click.option(
+        "-d",
+        "--dry-run",
+        default=False,
+        type=bool,
+        is_flag=True,
+        help="Run pre-flight checks but do not move data",
+    )(function)
+
+
 @cli.command(no_args_is_help=True)
 @library_folder_option
+@dry_run_option
 @click.argument(
     "folder-path",
     type=click.Path(
@@ -73,7 +85,7 @@ def list_(library_folder: WindowsPath):
         path_type=WindowsPath,
     ),
 )
-def add(folder_path: WindowsPath, library_folder: WindowsPath):
+def add(folder_path: WindowsPath, library_folder: WindowsPath, dry_run: bool):
     """Add FOLDER_PATH to library"""
     if folder_path.is_symlink():
         raise ClickException(
@@ -96,21 +108,28 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath):
         f"[bold]Add folder {style_path(folder.source_dir)} to {style_library(library)} ?[/bold]"
     )
     click.confirm(text="Confirm", abort=True)
-    add_folder_actions(folder, library)
+    add_folder_actions(folder, library, dry_run)
 
-    library.folders.append(folder)
-    library.save()
+    if not dry_run:
+        library.folders.append(folder)
+    library.save(dry_run=dry_run)
 
     print_("")
     print_(
-        f"[bold]Added {style_path(folder.source_dir)} to {style_library(library)} with name {style_path(folder.target_dir_name)}[/bold]"
+        f"[bold]Added {style_path(folder.source_dir)} with name {style_path(folder.target_dir_name)} to {style_library(library)} [/bold]"
     )
+    print_(
+        # TODO: full path for target folder?
+        f"Data is in subfolder {style_path(folder.target_dir_name)}"
+    )
+    print_(f"{style_path(folder.source_dir)} [bold]is[/bold] a symlink")
 
 
 @cli.command(no_args_is_help=True)
 @library_folder_option
+@dry_run_option
 @click.argument("folder-path")
-def remove(folder_path: str, library_folder: WindowsPath):
+def remove(folder_path: str, library_folder: WindowsPath, dry_run: bool):
     """Remove FOLDER_PATH from library"""
     # Not casting folder_path to Path type so that we can search for target_dir_name too
     library = FolderLibrary(library_folder)
@@ -126,15 +145,21 @@ def remove(folder_path: str, library_folder: WindowsPath):
         text="Confirm",
         abort=True,
     )
-    remove_folder_actions(folder, library)
+    remove_folder_actions(folder, library, dry_run=dry_run)
+    if not dry_run:
+        library.folders.remove(folder)
+    library.save(dry_run=dry_run)
 
-    library.folders.remove(folder)
-    library.save()
-
-    print_(f"Removed {folder}")
+    print_("")
+    print_(
+        f"[bold]Removed {style_path(folder.source_dir)} with name {style_path(folder.target_dir_name)} from {style_library(library)} [/bold]"
+    )
+    print_(f"Data is at {style_path(folder.source_dir)}")
+    print_(f"{style_path(folder.source_dir)} is [bold]not[/bold] a symlink")
 
 
 if __name__ == "__main__":
     cli()  # pylint: disable=no-value-for-parameter
     # TODO: how to cleanup library and filesystem if left in an inconsistent state?
     # TODO: how to handle failure part way through action?
+    # TODO: better --dry-run messages

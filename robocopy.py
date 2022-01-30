@@ -24,9 +24,12 @@ def get_tree_size(path: WindowsPath) -> int:
     return total
 
 
-def run_robocopy(source: WindowsPath, target: WindowsPath):
+def run_robocopy(source: WindowsPath, target: WindowsPath, dry_run: bool = False):
     print_(f"Copying data from {style_path(source)} to {style_path(target)}")
-    source_size_bytes = get_tree_size(source)
+    if target.exists():
+        raise ClickException("{target} already exists")
+    if dry_run:
+        return
 
     robocopy_exe = (
         WindowsPath(os.environ["SystemRoot"])
@@ -44,8 +47,7 @@ def run_robocopy(source: WindowsPath, target: WindowsPath):
         "/NFL",  # No File List - don't log file names.
         "/NP",  # No Progress - don't display percentage copied.
     ]
-    if target.exists():
-        raise ClickException("{target} already exists")
+    source_size_bytes = get_tree_size(source)
 
     proc = subprocess.Popen(
         args=robocopy_args,

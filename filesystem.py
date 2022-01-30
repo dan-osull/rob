@@ -1,3 +1,4 @@
+import shutil
 from pathlib import WindowsPath
 
 from click import ClickException
@@ -36,8 +37,13 @@ def test_symlink_creation(source: WindowsPath, target: WindowsPath) -> None:
             target.rmdir()
 
 
-def rename_folder(source: WindowsPath, target: WindowsPath) -> None:
+def rename_folder(
+    source: WindowsPath, target: WindowsPath, dry_run: bool = False
+) -> None:
     print_(f"Renaming {style_path(source)} to {style_path(target)}")
+    if dry_run:
+        return
+
     try:
         source.rename(target)
     except PermissionError as e:
@@ -47,10 +53,13 @@ def rename_folder(source: WindowsPath, target: WindowsPath) -> None:
 
 
 def create_symlink(
-    source: WindowsPath, target: WindowsPath, quiet: bool = False
+    source: WindowsPath, target: WindowsPath, quiet: bool = False, dry_run: bool = False
 ) -> None:
     if not quiet:
         print_(f"Making symlink from {style_path(source)} to {style_path(target)}")
+    if dry_run:
+        return
+
     if not target.exists():
         raise ClickException(f"{target} does not exist")
     try:
@@ -63,15 +72,30 @@ def create_symlink(
         ) from e
 
 
-def delete_symlink(path: WindowsPath, quiet: bool = False) -> None:
+def delete_symlink(
+    path: WindowsPath, quiet: bool = False, dry_run: bool = False
+) -> None:
     if not quiet:
         print_(f"Deleting symlink {style_path(path)}")
     if not path.is_symlink():
         raise ClickException(f"{path} is not a symlink")
+    if dry_run:
+        return
+
     path.unlink()
 
 
-def add_folder_actions(folder: Folder, library: FolderLibrary) -> None:
+def delete_folder(path: WindowsPath, dry_run: bool = False) -> None:
+    print_(f"Deleting folder {style_path(path)}")
+    if path.is_symlink():
+        raise ClickException(f"Cannot delete. {path} is a symlink.")
+    if dry_run:
+        return
+
+    shutil.rmtree(path)
+
+
+def add_folder_actions(folder: Folder, library: FolderLibrary, dry_run: bool) -> None:
     """Filesystem actions for `add` command"""
     target_dir = folder.get_target_dir(library.library_folder)
 
@@ -86,23 +110,31 @@ def add_folder_actions(folder: Folder, library: FolderLibrary) -> None:
 
     print_("")
     print_("[bold]Actions[/bold]")
-    rename_folder(folder.source_dir, temp_dir)
-    run_robocopy(temp_dir, target_dir)
-    create_symlink(folder.source_dir, target_dir)
-    # TODO: delete source_dir here
+    rename_folder(folder.source_dir, temp_dir, dry_run=dry_run)
+    run_robocopy(temp_dir, target_dir, dry_run=dry_run)
+    create_symlink(folder.source_dir, target_dir, dry_run=dry_run)
+    delete_folder(temp_dir, dry_run=dry_run)
 
 
-def remove_folder_actions(folder: Folder, library: FolderLibrary) -> None:
+def remove_folder_actions(
+    folder: Folder, library: FolderLibrary, dry_run: bool
+) -> None:
     """Filesystem actions for `remove` command"""
     target_dir = folder.get_target_dir(library.library_folder)
     if not target_dir.exists():
         raise ClickException(f"{target_dir} does not exist")
         # TODO: how to handle? remove library entry?
     temp_dir = folder.get_temp_dir()
+
+    print_("")
+    print_("[bold]Pre-flight checks[/bold]")
     test_dir_creation(temp_dir)
+    # TODO: test write access to library folder
     # TODO: check that destination drive has enough space
 
-    run_robocopy(target_dir, temp_dir)
-    delete_symlink(folder.source_dir)
-    rename_folder(temp_dir, folder.source_dir)
-    # TODO: delete target_dir here
+    print_("")
+    print_("[bold]Actions[/bold]")
+    run_robocopy(target_dir, temp_dir, dry_run=dry_run)
+    delete_symlink(folder.source_dir, dry_run=dry_run)
+    rename_folder(temp_dir, folder.source_dir, dry_run=dry_run)
+    delete_folder(target_dir, dry_run=dry_run)

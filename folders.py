@@ -33,7 +33,6 @@ class Folder:
 
     def get_temp_dir(self) -> WindowsPath:
         """Temp dir is a sibling of the source. It is used for shuffling data."""
-        # TODO: can we resolve() this?
         return self.source_dir.parent.joinpath(self.temp_dir_name).resolve()
 
     @property
@@ -80,6 +79,8 @@ class FolderLibrary:
     def get_table_data(self) -> list[dict]:
         return [item.get_table_data() for item in self.folders]
 
-    def save(self) -> None:
+    def save(self, dry_run: bool = False) -> None:
+        if dry_run:
+            return
         with open(self.config_path, "w", encoding="utf8") as file:
             file.write(json.dumps([str(item.source_dir) for item in self.folders]))
