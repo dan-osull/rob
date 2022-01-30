@@ -159,7 +159,7 @@ def remove_folder_actions(
 
     print_("\n[bold]Pre-flight checks[/bold]")
     test_dir_creation(temp_dir)
-    test_dir_creation(library.get_temp_dir())
+    test_dir_creation(library.get_test_dir())
     # TODO: check that destination drive has enough space
 
     print_("\n[bold]Actions[/bold]")
