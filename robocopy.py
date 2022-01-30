@@ -6,16 +6,25 @@ from time import sleep
 from click import ClickException
 from rich.progress import Progress
 
-from console import print_, style_path
-from filesystem import get_tree_size
+from console import print_, print_skipped, style_path
 
 
-def run_robocopy(source: WindowsPath, target: WindowsPath, dry_run: bool = False):
-    print_(f"Copying data from {style_path(source)} to {style_path(target)}")
+def run_robocopy(
+    source: WindowsPath,
+    target: WindowsPath,
+    dry_run: bool = False,
+):
+    from filesystem import get_tree_size
+
+    msg = f" Copying data from {style_path(source)} to {style_path(target)}"
     if target.exists():
+        print_(msg)
         raise ClickException("{target} already exists")
     if dry_run:
+        print_(msg, end="")
+        print_skipped()
         return
+    print_(msg)
 
     robocopy_exe = (
         WindowsPath(os.environ["SystemRoot"])
@@ -42,8 +51,10 @@ def run_robocopy(source: WindowsPath, target: WindowsPath, dry_run: bool = False
         stderr=subprocess.STDOUT,
         text=True,
     )
-    with Progress(auto_refresh=False, transient=True) as progress:
-        task_id = progress.add_task("[green]Copying data...", total=source_size_bytes)
+    with Progress(auto_refresh=False) as progress:
+        task_id = progress.add_task(
+            " [green]Copying data...[/green]", total=source_size_bytes
+        )
         while proc.poll() is None:
             # == None so that returncode 0 breaks loop
             progress.update(task_id, completed=get_tree_size(target))

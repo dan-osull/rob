@@ -1,14 +1,15 @@
-from pathlib import WindowsPath
+from pathlib import Path, WindowsPath
 from typing import Union
 
+import click
 from rich.console import Console
 from tabulate import tabulate
 
 from config import PROJECT_NAME
-from folders import FolderLibrary
+from library import FolderLibrary
 
-# ANSI colors(?)
-HELP_HEADERS_COLOR = "green"
+# click.termui._ansi_colors
+HELP_HEADERS_COLOR = "bright_white"
 HELP_OPTIONS_COLOR = "cyan"
 
 # https://rich.readthedocs.io/en/stable/appendix/colors.html#appendix-colors
@@ -35,6 +36,19 @@ def print_library_table(library_folder: WindowsPath) -> None:
     print_("")
 
 
+def print_success(msg: str = "") -> None:
+    print_(f"{msg} [bold][green]SUCCESS[/green][/bold]")
+
+
+def print_skipped() -> None:
+    print_(" [grey50]SKIPPED[/grey50]")
+
+
+def print_title() -> None:
+    logo_text = Path("logo.txt").read_text(encoding="utf8")
+    print_(f"[bold][purple]{logo_text}[/purple][/bold]")
+
+
 def style_project() -> str:
     return f"[bold][purple]{PROJECT_NAME}[/purple][/bold]"
 
@@ -46,3 +60,11 @@ def style_library(library: FolderLibrary) -> str:
 
 def style_path(obj: Union[WindowsPath, str]) -> str:
     return f"[cyan]{str(obj)}[/cyan]"
+
+
+def confirm_action(dry_run: bool) -> None:
+    if dry_run:
+        confirm_text = "Confirm dry run?"
+    else:
+        confirm_text = "Confirm?"
+    click.confirm(text=confirm_text, abort=True)

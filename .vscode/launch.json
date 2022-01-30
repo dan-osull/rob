@@ -12,8 +12,8 @@
             "args": [
                 // "list",
                 // "add",
-                "remove",
-                "d:\\temp\\smalldata",
+                // "remove",
+                // "d:\\temp\\smalldata",
                 "--library-folder",
                 "d:\\rob_library",
                 // "--help",

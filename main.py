@@ -7,15 +7,17 @@ from click_help_colors import HelpColorsGroup
 from console import (
     HELP_HEADERS_COLOR,
     HELP_OPTIONS_COLOR,
+    confirm_action,
     print_,
     print_library_table,
+    print_success,
+    print_title,
     style_library,
     style_path,
-    style_project,
 )
 from exceptions import show_red_error
 from filesystem import add_folder_actions, remove_folder_actions
-from folders import Folder, FolderLibrary
+from library import Folder, FolderLibrary
 
 
 def library_folder_option(function):
@@ -43,9 +45,7 @@ def cli(ctx, library_folder: WindowsPath):
     """Utility for..."""
     ClickException.show = show_red_error
     # TODO: doesn't change color of subclasses with custom show() e.g. error on exists=True
-    print_()
-    print_(style_project())
-    print_()
+    print_title()
 
     if ctx.invoked_subcommand is None:
         # Show help and list library if no command provided
@@ -105,24 +105,23 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath, dry_run: bool):
     folder = Folder(source_dir=folder_path)
 
     print_(
-        f"[bold]Add folder {style_path(folder.source_dir)} to {style_library(library)} ?[/bold]"
+        f"[bold]Add folder {style_path(folder.source_dir)} to {style_library(library)}[/bold]"
     )
-    click.confirm(text="Confirm", abort=True)
+    confirm_action(dry_run=dry_run)
     add_folder_actions(folder, library, dry_run)
 
     if not dry_run:
         library.folders.append(folder)
         library.save()
-
-    print_("")
-    print_(
-        f"[bold]Added {style_path(folder.source_dir)} with name {style_path(folder.target_dir_name)} to {style_library(library)} [/bold]"
-    )
-    print_(
-        # TODO: full path for target folder?
-        f"Data is in subfolder {style_path(folder.target_dir_name)}"
-    )
-    print_(f"{style_path(folder.source_dir)} [bold]is[/bold] a symlink")
+        print_(
+            f"\n[bold]Added {style_path(folder.source_dir)} with name {style_path(folder.target_dir_name)} to {style_library(library)} [/bold]"
+        )
+        print_(
+            f" Data is now in subfolder with name {style_path(folder.target_dir_name)}"
+        )
+        print_(f" {style_path(folder.source_dir)} [bold]is[/bold] a symlink")
+    else:
+        print_success("\nDry run result:")
 
 
 @cli.command(no_args_is_help=True)
@@ -138,7 +137,7 @@ def remove(folder_path: str, library_folder: WindowsPath, dry_run: bool):
         raise ClickException(f"Cannot find info for folder: {folder_path}.")
 
     print_(
-        f"[bold]Remove folder {style_path(folder.source_dir)} with name {style_path(folder.target_dir_name)} from {style_library(library)} ?[/bold]"
+        f"[bold]Remove folder {style_path(folder.source_dir)} with name {style_path(folder.target_dir_name)} from {style_library(library)}[/bold]"
     )
 
     click.confirm(
@@ -146,20 +145,20 @@ def remove(folder_path: str, library_folder: WindowsPath, dry_run: bool):
         abort=True,
     )
     remove_folder_actions(folder, library, dry_run=dry_run)
+
     if not dry_run:
         library.folders.remove(folder)
         library.save()
-
-    print_("")
-    print_(
-        f"[bold]Removed {style_path(folder.source_dir)} with name {style_path(folder.target_dir_name)} from {style_library(library)} [/bold]"
-    )
-    print_(f"Data is at {style_path(folder.source_dir)}")
-    print_(f"{style_path(folder.source_dir)} is [bold]not[/bold] a symlink")
+        print_(
+            f"\n[bold]Removed {style_path(folder.source_dir)} with name {style_path(folder.target_dir_name)} from {style_library(library)} [/bold]"
+        )
+        print_(f" Data is now at {style_path(folder.source_dir)}")
+        print_(f" {style_path(folder.source_dir)} is [bold]not[/bold] a symlink")
+    else:
+        print_success("\nDry run result:")
 
 
 if __name__ == "__main__":
     cli()  # pylint: disable=no-value-for-parameter
     # TODO: how to cleanup library and filesystem if left in an inconsistent state?
     # TODO: how to handle failure part way through action?
-    # TODO: better --dry-run messages

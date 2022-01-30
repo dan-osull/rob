@@ -47,21 +47,19 @@ class Folder:
 @dataclass
 class FolderLibrary:
     config_filename: ClassVar = f"{PROJECT_NAME}-folders.json"
+    library_folder: WindowsPath
+    """The library is the folder that contains the config file"""
     config_path: WindowsPath
     folders: list[Folder]
 
     def __init__(self, library_folder: WindowsPath):
+        self.library_folder = library_folder
         self.config_path = library_folder.joinpath(self.config_filename).resolve()
 
         self.folders = []
         if self.config_path.exists():
             with open(self.config_path, encoding="utf8") as file:
                 self.folders = [Folder(source_dir=item) for item in json.load(file)]
-
-    @property
-    def library_folder(self) -> WindowsPath:
-        """The library is the folder that contains the config file"""
-        return self.config_path.parent
 
     @property
     def source_dirs(self) -> list[WindowsPath]:
