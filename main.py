@@ -112,7 +112,7 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath, dry_run: bool):
 
     if not dry_run:
         library.folders.append(folder)
-    library.save(dry_run=dry_run)
+        library.save()
 
     print_("")
     print_(
@@ -148,7 +148,7 @@ def remove(folder_path: str, library_folder: WindowsPath, dry_run: bool):
     remove_folder_actions(folder, library, dry_run=dry_run)
     if not dry_run:
         library.folders.remove(folder)
-    library.save(dry_run=dry_run)
+        library.save()
 
     print_("")
     print_(

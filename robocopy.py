@@ -7,21 +7,7 @@ from click import ClickException
 from rich.progress import Progress
 
 from console import print_, style_path
-
-
-def get_tree_size(path: WindowsPath) -> int:
-    """Return total size of files in given path and subdirs."""
-    # https://www.python.org/dev/peps/pep-0471/
-    if not WindowsPath(path).exists():
-        # Avoid race with file creation
-        return 0
-    total = 0
-    for entry in os.scandir(path):
-        if entry.is_dir(follow_symlinks=False):
-            total += get_tree_size(entry.path)  # type: ignore
-        else:
-            total += entry.stat(follow_symlinks=False).st_size
-    return total
+from filesystem import get_tree_size
 
 
 def run_robocopy(source: WindowsPath, target: WindowsPath, dry_run: bool = False):

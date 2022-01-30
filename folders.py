@@ -79,8 +79,6 @@ class FolderLibrary:
     def get_table_data(self) -> list[dict]:
         return [item.get_table_data() for item in self.folders]
 
-    def save(self, dry_run: bool = False) -> None:
-        if dry_run:
-            return
+    def save(self) -> None:
         with open(self.config_path, "w", encoding="utf8") as file:
             file.write(json.dumps([str(item.source_dir) for item in self.folders]))
