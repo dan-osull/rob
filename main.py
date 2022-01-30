@@ -108,7 +108,7 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath, dry_run: bool):
         f"[bold]Add folder {style_path(folder.source_dir)} to {style_library(library)}[/bold]"
     )
     confirm_action(dry_run=dry_run)
-    add_folder_actions(folder, library, dry_run)
+    add_folder_actions(folder, library, dry_run=dry_run)
 
     if not dry_run:
         library.folders.append(folder)
