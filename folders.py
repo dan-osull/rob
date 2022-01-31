@@ -4,7 +4,7 @@ from hashlib import sha256
 from pathlib import WindowsPath
 from typing import ClassVar, Optional, Union
 
-from config import PROJECT_NAME
+from constants import PROJECT_NAME
 
 
 @dataclass
@@ -79,7 +79,7 @@ class FolderLibrary:
 
     def get_test_dir(self) -> WindowsPath:
         """Directory in library for testing write access"""
-        return self.library_folder.joinpath(f"_{PROJECT_NAME}_test_").resolve()
+        return self.library_folder.joinpath(f"_{PROJECT_NAME}_test").resolve()
 
     def save(self) -> None:
         with open(self.config_path, "w", encoding="utf8") as file:

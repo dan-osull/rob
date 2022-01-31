@@ -17,7 +17,7 @@ from console import (
 )
 from exceptions import show_red_error
 from filesystem import run_add_folder_actions, run_remove_folder_actions
-from library import Folder, FolderLibrary
+from folders import Folder, FolderLibrary
 
 
 def library_folder_option(function):
@@ -54,9 +54,7 @@ def cli(ctx, library_folder: WindowsPath):
         print_library_table(library_folder)
 
 
-@cli.command(
-    name="list",
-)
+@cli.command(name="list")
 @library_folder_option
 def list_(library_folder: WindowsPath):
     """List folders in library"""
@@ -155,6 +153,7 @@ def remove(folder_path: str, library_folder: WindowsPath, dry_run: bool):
 
 
 if __name__ == "__main__":
+    # Entry point for application
     cli()  # pylint: disable=no-value-for-parameter
     # TODO: how to cleanup library and filesystem if left in an inconsistent state?
     # TODO: how to handle failure part way through action?

@@ -6,6 +6,7 @@ from time import sleep
 from click import ClickException
 from rich.progress import Progress
 
+import filesystem
 from console import print_, print_skipped, style_path
 
 
@@ -13,9 +14,8 @@ def run_robocopy(
     source: WindowsPath,
     target: WindowsPath,
     dry_run: bool = False,
+    copy_permissions: bool = False,
 ):
-    from filesystem import get_dir_size
-
     msg = f"Copying data from {style_path(source)} to {style_path(target)}"
     if target.exists():
         print_(msg)
@@ -42,7 +42,11 @@ def run_robocopy(
         "/NFL",  # No File List - don't log file names.
         "/NP",  # No Progress - don't display percentage copied.
     ]
-    source_size_bytes = get_dir_size(source)
+    if copy_permissions:
+        robocopy_args.append(
+            "/SEC"  # copy files with SECurity (equivalent to /COPY:DATS) (S=Security=NTFS ACLs)
+        )
+    source_size_bytes = filesystem.get_dir_size(source)
 
     proc = subprocess.Popen(
         args=robocopy_args,
@@ -57,7 +61,7 @@ def run_robocopy(
         )
         while proc.poll() is None:
             # "is None" so that returncode 0 breaks loop
-            progress.update(task_id, completed=get_dir_size(target))
+            progress.update(task_id, completed=filesystem.get_dir_size(target))
             progress.refresh()
             sleep(5)
 

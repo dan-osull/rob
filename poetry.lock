@@ -40,6 +40,14 @@ jupyter = ["ipython (>=7.8.0)", "tokenize-rt (>=3.2.0)"]
 uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
+name = "chardet"
+version = "4.0.0"
+description = "Universal encoding detector for Python 2 and 3"
+category = "dev"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+[[package]]
 name = "click"
 version = "8.0.3"
 description = "Composable command line interface toolkit"
@@ -180,6 +188,18 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
+name = "pygount"
+version = "1.3.0"
+description = "count source lines of code (SLOC) using pygments"
+category = "dev"
+optional = false
+python-versions = ">=3.6.1,<4.0.0"
+
+[package.dependencies]
+chardet = ">=4.0.0,<5.0.0"
+pygments = ">=2,<3"
+
+[[package]]
 name = "pyinstaller"
 version = "4.8"
 description = "PyInstaller bundles a Python application and all its dependencies into a single package."
@@ -284,7 +304,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10,<3.11"
-content-hash = "9073c50376c2990402b7fb280eda5df40040d7ed3e87101524d9286be87b750d"
+content-hash = "d75e29406b892f5c2f6b5f9a0b3fcdde34066a98f0201089ad445f06e7022c04"
 
 [metadata.files]
 altgraph = [
@@ -319,6 +339,10 @@ black = [
     {file = "black-22.1.0-cp39-cp39-win_amd64.whl", hash = "sha256:373922fc66676133ddc3e754e4509196a8c392fec3f5ca4486673e685a421321"},
     {file = "black-22.1.0-py3-none-any.whl", hash = "sha256:3524739d76b6b3ed1132422bf9d82123cd1705086723bc3e235ca39fd21c667d"},
     {file = "black-22.1.0.tar.gz", hash = "sha256:a7c0192d35635f6fc1174be575cb7915e92e5dd629ee79fdaf0dcfa41a80afb5"},
+]
+chardet = [
+    {file = "chardet-4.0.0-py2.py3-none-any.whl", hash = "sha256:f864054d66fd9118f2e67044ac8981a54775ec5b67aed0441892edb553d21da5"},
+    {file = "chardet-4.0.0.tar.gz", hash = "sha256:0d6f53a15db4120f2b08c94f11e7d93d2c911ee118b6b30a04ec3ee8310179fa"},
 ]
 click = [
     {file = "click-8.0.3-py3-none-any.whl", hash = "sha256:353f466495adaeb40b6b5f592f9f91cb22372351c84caeb068132442a4518ef3"},
@@ -408,6 +432,9 @@ platformdirs = [
 pygments = [
     {file = "Pygments-2.11.2-py3-none-any.whl", hash = "sha256:44238f1b60a76d78fc8ca0528ee429702aae011c265fe6a8dd8b63049ae41c65"},
     {file = "Pygments-2.11.2.tar.gz", hash = "sha256:4e426f72023d88d03b2fa258de560726ce890ff3b630f88c21cbb8b2503b8c6a"},
+]
+pygount = [
+    {file = "pygount-1.3.0-py3-none-any.whl", hash = "sha256:a85b5e22b4565685d422b098ab7e8a559d75c154dd04306d243bfed366715a22"},
 ]
 pyinstaller = [
     {file = "pyinstaller-4.8-py3-none-macosx_10_13_universal2.whl", hash = "sha256:b0b3a31aa60292469f9595f298e2c147cba29c30edcd92a38fdce27727809625"},

@@ -5,8 +5,8 @@ import click
 from rich.console import Console
 from tabulate import tabulate
 
-from config import PROJECT_NAME
-from library import FolderLibrary
+from constants import PROJECT_NAME
+from folders import FolderLibrary
 
 # click.termui._ansi_colors
 HELP_HEADERS_COLOR = "bright_white"

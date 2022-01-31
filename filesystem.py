@@ -1,12 +1,11 @@
 import os
 import shutil
 from pathlib import WindowsPath
-from typing import Union
 
 from click import ClickException
 
 from console import print_, print_skipped, print_success, style_path
-from library import Folder, FolderLibrary
+from folders import Folder, FolderLibrary
 from robocopy import run_robocopy
 
 
@@ -149,7 +148,7 @@ def run_add_folder_actions(
 
     print_("\n[bold]Actions[/bold]")
     rename_folder(folder.source_dir, temp_dir, dry_run=dry_run)
-    run_robocopy(temp_dir, target_dir, dry_run=dry_run)
+    run_robocopy(temp_dir, target_dir, dry_run=dry_run, copy_permissions=True)
     create_symlink(folder.source_dir, target_dir, dry_run=dry_run)
     delete_folder(temp_dir, dry_run=dry_run)
 
