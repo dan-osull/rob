@@ -132,9 +132,7 @@ def delete_folder(path: WindowsPath, dry_run: bool = False) -> None:
     print_success()
 
 
-def run_add_folder_actions(
-    folder: Folder, library: FolderLibrary, dry_run: bool
-) -> None:
+def add_folder_actions(folder: Folder, library: FolderLibrary, dry_run: bool) -> None:
     """Filesystem actions for `add` command"""
     target_dir = folder.get_target_dir(library.library_folder)
 
@@ -153,7 +151,7 @@ def run_add_folder_actions(
     delete_folder(temp_dir, dry_run=dry_run)
 
 
-def run_remove_folder_actions(
+def remove_folder_actions(
     folder: Folder, library: FolderLibrary, dry_run: bool
 ) -> None:
     """Filesystem actions for `remove` command"""

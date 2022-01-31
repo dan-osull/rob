@@ -16,7 +16,7 @@ from console import (
     style_path,
 )
 from exceptions import show_red_error
-from filesystem import run_add_folder_actions, run_remove_folder_actions
+from filesystem import add_folder_actions, remove_folder_actions
 from folders import Folder, FolderLibrary
 
 
@@ -106,10 +106,12 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath, dry_run: bool):
         f"[bold]Add folder {style_path(folder.source_dir)} to {style_library(library)}[/bold]"
     )
     confirm_action(dry_run=dry_run)
-    run_add_folder_actions(folder, library, dry_run)
+    add_folder_actions(folder, library, dry_run=dry_run)
 
     if not dry_run:
-        library.folders.append(folder)
+        # Load library again in case it has been updated by another process
+        library = FolderLibrary(library_folder)
+        library.add_folder(folder)
         library.save()
         print_(
             f"\n[bold]Added {style_path(folder.source_dir)} with name {style_path(folder.target_dir_name)} to {style_library(library)} [/bold]"
@@ -138,10 +140,12 @@ def remove(folder_path: str, library_folder: WindowsPath, dry_run: bool):
         f"[bold]Remove folder {style_path(folder.source_dir)} with name {style_path(folder.target_dir_name)} from {style_library(library)}[/bold]"
     )
     confirm_action(dry_run=dry_run)
-    run_remove_folder_actions(folder, library, dry_run=dry_run)
+    remove_folder_actions(folder, library, dry_run=dry_run)
 
     if not dry_run:
-        library.folders.remove(folder)
+        # Load library again in case it has been updated by another process
+        library = FolderLibrary(library_folder)
+        library.remove_folder(folder)
         library.save()
         print_(
             f"\n[bold]Removed {style_path(folder.source_dir)} with name {style_path(folder.target_dir_name)} from {style_library(library)} [/bold]"

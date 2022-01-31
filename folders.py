@@ -61,6 +61,14 @@ class FolderLibrary:
             with open(self.config_path, encoding="utf8") as file:
                 self.folders = [Folder(source_dir=item) for item in json.load(file)]
 
+    def add_folder(self, folder: Folder) -> None:
+        if folder not in self.folders:
+            self.folders.append(folder)
+
+    def remove_folder(self, folder: Folder) -> None:
+        if folder in self.folders:
+            self.folders.remove(folder)
+
     @property
     def source_dirs(self) -> list[WindowsPath]:
         return [folder.source_dir for folder in self.folders]
