@@ -6,25 +6,26 @@ from time import sleep
 from click import ClickException
 from rich.progress import Progress
 
+import console as con
 import filesystem
-from console import print_, print_skipped, style_path
 
 
 def run_robocopy(
     source: WindowsPath,
     target: WindowsPath,
+    source_size_bytes: int,
     dry_run: bool = False,
     copy_permissions: bool = False,
 ):
-    msg = f"Copying data from {style_path(source)} to {style_path(target)}"
+    msg = f"Copying data from {con.style_path(source)} to {con.style_path(target)}"
     if target.exists():
-        print_(msg)
+        con.print_(msg)
         raise ClickException("{target} already exists")
     if dry_run:
-        print_(msg, end="")
-        print_skipped()
+        con.print_(msg, end="")
+        con.print_skipped()
         return
-    print_(msg)
+    con.print_(msg)
 
     robocopy_exe = (
         WindowsPath(os.environ["SystemRoot"])
@@ -46,7 +47,6 @@ def run_robocopy(
         robocopy_args.append(
             "/SEC"  # copy files with SECurity (equivalent to /COPY:DATS) (S=Security=NTFS ACLs)
         )
-    source_size_bytes = filesystem.get_dir_size(source)
 
     proc = subprocess.Popen(
         args=robocopy_args,
@@ -81,4 +81,4 @@ def run_robocopy(
             error = None
         raise ClickException(f"Robocopy: {error}")
 
-    print_("[green]Data copy complete[/green]")
+    con.print_("[green]Data copy complete[/green]")

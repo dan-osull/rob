@@ -59,6 +59,8 @@ def cli(ctx, library_folder: WindowsPath):
 def list_(library_folder: WindowsPath):
     """List folders in library"""
     print_library_table(library_folder)
+    # TODO: display disk space
+    # TODO: version that shows size of library folders
 
 
 def dry_run_option(function):
