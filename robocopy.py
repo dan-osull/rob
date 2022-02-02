@@ -59,20 +59,20 @@ def run_robocopy(
         stderr=subprocess.STDOUT,
         text=True,
     )
-    if not quiet:
-        with Progress(auto_refresh=False, transient=True) as progress:
-            task_id = progress.add_task(
-                "[green]Copying data...[/green]", total=dir_size_bytes
-            )
-            while proc.poll() is None:
-                # "is None" so that returncode 0 breaks loop
-                # 0: No errors occurred, and no copying was done.
-                #    The source and destination directory trees are completely synchronized.
-                # 1: One or more files were copied successfully (that is, new files have arrived).
-                # https://ss64.com/nt/robocopy-exit.html
+    while proc.poll() is None:
+        # "is None" so that returncode 0 breaks loop
+        # 0: No errors occurred, and no copying was done.
+        #    The source and destination directory trees are completely synchronized.
+        # 1: One or more files were copied successfully (that is, new files have arrived).
+        # https://ss64.com/nt/robocopy-exit.html
+        if not quiet:
+            with Progress(auto_refresh=False, transient=True) as progress:
+                task_id = progress.add_task(
+                    "[green]Copying data...[/green]", total=dir_size_bytes
+                )
                 progress.update(task_id, completed=filesystem.get_dir_size(target))
                 progress.refresh()
-                sleep(2)
+                sleep(5)
 
     output = proc.stdout.read()  # type: ignore
     output = output.split("\n")
@@ -80,13 +80,18 @@ def run_robocopy(
     # Exit code cannot be trusted as, for example, this error:
     # ERROR 5 (0x00000005) Copying NTFS Security to Destination Directory
     # can be present despite returncode 0, so let's look for the error ourselves
+    # Looking for " (0x000" in case there's a folder called ERROR!
     error_line = next(
-        (line for line in output if " ERROR " in line and "(0x000" in line), None
+        (line for line in output if " ERROR " in line and " (0x000" in line), None
     )
     if error_line:
         # Get ERROR and all following lines
         error = output[output.index(error_line) :]
         raise ClickException(f"Robocopy: {str(error)}")
+
+    if not dir_size_bytes == 0 and filesystem.get_dir_size(target) == 0:
+        # Source was not empty but target is empty
+        raise ClickException("Target folder is empty after data copy. Aborting.")
 
     if not quiet:
         con.print_("[green]Data copy complete[/green]")

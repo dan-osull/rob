@@ -19,11 +19,23 @@ print_ = console.print
 
 
 def print_disk_usage(disk: filesystem.DiskUsage) -> None:
+    # TODO: use this somewhere
     print_(
         f"Drive {style_path(disk.drive)} - "
         f"{style_bytes_as_gb(disk.usage.used)} ({round(disk.usage.used/disk.usage.total*100)}%) used"
         f"{style_bytes_as_gb(disk.usage.total)} total"
     )
+
+
+def print_library_table_and_folder_count(
+    library: Library, show_size: bool = False
+) -> None:
+    print_library_folder_count(library)
+    table_data = library.get_table_data(show_size=show_size)
+    if table_data:
+        print_library_table(table_data)
+        if not show_size:
+            print_("\nRun [bold]rob list[/bold] to see size of folders.")
 
 
 def print_library_folder_count(library: Library) -> None:
@@ -42,6 +54,10 @@ def print_library_table(table_data: list[dict]) -> None:
     print_(f"{table[0]}")
     # Table body
     print_(style_path(table[1]))
+
+
+def print_fail(msg: str = "") -> None:
+    print_(f"{msg} [bold][red]FAIL[/red][/bold]")
 
 
 def print_success(msg: str = "") -> None:

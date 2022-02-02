@@ -9,8 +9,7 @@ from console import (
     HELP_OPTIONS_COLOR,
     confirm_action,
     print_,
-    print_library_folder_count,
-    print_library_table,
+    print_library_table_and_folder_count,
     print_success,
     print_title,
     style_library,
@@ -52,7 +51,8 @@ def cli(ctx, library_folder: WindowsPath):
         # Show help and list library if no command provided
         click.echo(cli.get_help(ctx))
         print_("")
-        # TODO: put library info here again
+        library = Library(library_folder)
+        print_library_table_and_folder_count(library)
 
 
 @cli.command(name="list")
@@ -60,11 +60,7 @@ def cli(ctx, library_folder: WindowsPath):
 def list_(library_folder: WindowsPath):
     """List folders in library"""
     library = Library(library_folder)
-    table_data = library.get_table_data(get_size=True)
-    print_library_folder_count(library)
-    if table_data:
-        print_library_table(table_data)
-    # TODO: option / command for disk space
+    print_library_table_and_folder_count(library, show_size=True)
 
 
 def dry_run_option(function):
@@ -81,6 +77,13 @@ def dry_run_option(function):
 @cli.command(no_args_is_help=True)
 @library_folder_option
 @dry_run_option
+@click.option(
+    "--dont-copy-permissions",
+    default=False,
+    type=bool,
+    is_flag=True,
+    help="Do not copy NTFS permissions (advanced)",
+)
 @click.argument(
     "folder-path",
     type=click.Path(
@@ -89,7 +92,12 @@ def dry_run_option(function):
         path_type=WindowsPath,
     ),
 )
-def add(folder_path: WindowsPath, library_folder: WindowsPath, dry_run: bool):
+def add(
+    folder_path: WindowsPath,
+    library_folder: WindowsPath,
+    dry_run: bool,
+    dont_copy_permissions: bool,
+):
     """Add FOLDER_PATH to library"""
     if folder_path.is_symlink():
         raise ClickException(
@@ -99,20 +107,34 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath, dry_run: bool):
     # Do this after symlink check to avoid resolving symlink!
     folder_path = folder_path.resolve()
     library = Library(library_folder)
+
     if folder_path in library.source_dirs:
         raise ClickException(f"Cannot add folder. {folder_path} is already in library.")
-
-    # TODO: should not be possible to add child (and parent?) of existing folder
-    # TODO: don't allow root of disk
-    # TODO: source and dest should be on different disks
-
     folder = Folder(source_dir=folder_path)
+    if library.library_folder.drive == folder.source_dir.drive:
+        raise ClickException(
+            f"Cannot add {folder_path}. Source folder and library should be on different disks. "
+        )
+    if len(folder.source_dir.parts) == 1:
+        raise ClickException("Cannot add the root folder of a disk.")
+    for source_dir in library.source_dirs:
+        if folder_path in source_dir.parents:
+            raise ClickException(
+                f"Cannot add {folder_path} because it is the parent of an existing source folder."
+            )
+    if library.library_folder in folder_path.parents:
+        # Will resolve as child of library folder
+        raise ClickException(
+            f"Cannot add {folder_path} because it is the child of an existing source folder."
+        )
 
     print_(
         f"[bold]Add folder {style_path(folder.source_dir)} to {style_library(library)}[/bold]"
     )
     confirm_action(dry_run=dry_run)
-    add_folder_actions(folder, library, dry_run=dry_run)
+    add_folder_actions(
+        folder, library, dry_run=dry_run, dont_copy_permissions=dont_copy_permissions
+    )
 
     if not dry_run:
         # Load library again in case it has been updated by another process
@@ -120,7 +142,7 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath, dry_run: bool):
         library.add_folder(folder)
         library.save()
         print_(
-            f"\n[bold]Added {style_path(folder.source_dir)} with name {style_path(folder.short_name)} to {style_library(library)} [/bold]"
+            f"\n[bold]Added {style_path(folder.source_dir)} with name {style_path(folder.short_name)} to {style_library(library)}[/bold]"
         )
         print_(f"Data is now in subfolder with name {style_path(folder.short_name)}")
         print_(f"{style_path(folder.source_dir)} [bold]is[/bold] a symlink")
@@ -137,8 +159,15 @@ def remove(folder_path: str, library_folder: WindowsPath, dry_run: bool):
     # Not casting folder_path to Path type so that we can search for target_dir_name too
     library = Library(library_folder)
     folder = library.find_folder(folder_path)
+
     if not folder:
         raise ClickException(f"Cannot find folder information: {folder_path}.")
+    if not folder.get_library_subdir(library).exists():
+        library.remove_folder(folder)
+        library.save()
+        raise ClickException(
+            f"{folder.get_library_subdir(library)} does not exist. Removed from folder list."
+        )
 
     print_(
         f"[bold]Remove folder {style_path(folder.source_dir)} with name {style_path(folder.short_name)} from {style_library(library)}[/bold]"
@@ -152,7 +181,7 @@ def remove(folder_path: str, library_folder: WindowsPath, dry_run: bool):
         library.remove_folder(folder)
         library.save()
         print_(
-            f"\n[bold]Removed {style_path(folder.source_dir)} with name {style_path(folder.short_name)} from {style_library(library)} [/bold]"
+            f"\n[bold]Removed {style_path(folder.source_dir)} with name {style_path(folder.short_name)} from {style_library(library)}[/bold]"
         )
         print_(f"Data is now at {style_path(folder.source_dir)}")
         print_(f"{style_path(folder.source_dir)} is [bold]not[/bold] a symlink")
@@ -163,5 +192,4 @@ def remove(folder_path: str, library_folder: WindowsPath, dry_run: bool):
 if __name__ == "__main__":
     # Entry point for application
     cli()  # pylint: disable=no-value-for-parameter
-    # TODO: how to cleanup library and filesystem if left in an inconsistent state?
-    # TODO: how to handle failure part way through action?
+    # TODO: should we try to clean up library and filesystem if left in an inconsistent state?

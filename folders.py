@@ -6,6 +6,7 @@ from hashlib import sha256
 from pathlib import WindowsPath
 from typing import ClassVar, Optional
 
+import console as con
 import filesystem
 from constants import PROJECT_NAME
 
@@ -43,10 +44,10 @@ class Folder:
         # lower() so paths get same hash regardless of capitalisation
         return sha256(str(self.source_dir).lower().encode("utf-8")).hexdigest()[:12]
 
-    def get_table_data(self, library: Library, get_size: bool = False) -> dict:
+    def get_table_data(self, library: Library, show_size: bool = False) -> dict:
         result = {"Path": self.source_dir, "Name": self.short_name}
-        if get_size:
-            result["Size"] = self.get_library_data_size(library)
+        if show_size:
+            result["Size"] = con.style_bytes_as_gb(self.get_library_data_size(library))
         return result
 
 
@@ -88,8 +89,8 @@ class Library:
             return match
         return next((x for x in self.folders if x.short_name == search_term), None)
 
-    def get_table_data(self, get_size: bool = False) -> list[dict]:
-        return [item.get_table_data(self, get_size=get_size) for item in self.folders]
+    def get_table_data(self, show_size: bool = False) -> list[dict]:
+        return [item.get_table_data(self, show_size=show_size) for item in self.folders]
 
     def get_test_dir(self) -> WindowsPath:
         """Directory in library for testing write access"""

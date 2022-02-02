@@ -173,12 +173,26 @@ def delete_folder(path: WindowsPath, dry_run: bool = False) -> None:
     if dry_run:
         con.print_skipped()
         return
-
-    shutil.rmtree(path)
+    try:
+        shutil.rmtree(path)
+    except PermissionError:
+        # Rarely, it might not be possible to delete a folder, even if earlier (folder renaming) checks pass.
+        # The example I've seen of this is an Explorer extension DLL that's still loaded.
+        # TODO: could be avoided by checking open file handles pre-flight?
+        # Not throwing exception, as this is a tidy up action, and we should still update DB.
+        con.print_fail()
+        con.print_(
+            "[red]Unable to delete {path}, probably because an application is locking it open.[/red]"
+        )
+        con.print_(
+            "[red]To tidy up, restart your PC and delete this folder manually.[/red]"
+        )
     con.print_success()
 
 
-def add_folder_actions(folder: Folder, library: Library, dry_run: bool) -> None:
+def add_folder_actions(
+    folder: Folder, library: Library, dry_run: bool, dont_copy_permissions: bool
+) -> None:
     """
     Filesystem actions for `add` command
 
@@ -195,8 +209,9 @@ def add_folder_actions(folder: Folder, library: Library, dry_run: bool) -> None:
     # Test symlink with sibling of source dir - it should have similar permissions
     test_symlink_creation(temp_dir, to_dir)
     test_disk_space(dir_size_bytes, DiskUsage(to_dir.drive))
-    # Use empty directory for testing permissions
-    test_set_ntfs_permisisons(temp_dir, to_dir)
+    if not dont_copy_permissions:
+        # Use empty source directory to test permissions
+        test_set_ntfs_permisisons(temp_dir, to_dir)
 
     con.print_("\n[bold]Actions[/bold]")
     rename_folder(from_dir, temp_dir, dry_run=dry_run)
@@ -205,9 +220,8 @@ def add_folder_actions(folder: Folder, library: Library, dry_run: bool) -> None:
         to_dir,
         dir_size_bytes,
         dry_run=dry_run,
-        copy_permissions=True,
+        copy_permissions=not dont_copy_permissions,
     )
-    # TODO: compare source and destination size here?
     create_symlink(from_dir, to_dir, dry_run=dry_run)
     delete_folder(temp_dir, dry_run=dry_run)
 
@@ -223,10 +237,6 @@ def remove_folder_actions(folder: Folder, library: Library, dry_run: bool) -> No
     temp_dir = folder.get_temp_dir()
     dir_size_bytes = get_dir_size(from_dir)
 
-    if not from_dir.exists():
-        raise ClickException(f"{from_dir} does not exist")
-        # TODO: how to handle? remove library entry?
-
     con.print_("\n[bold]Pre-flight checks[/bold]")
     # Sibling of source dir
     test_dir_creation(temp_dir)
@@ -236,7 +246,6 @@ def remove_folder_actions(folder: Folder, library: Library, dry_run: bool) -> No
 
     con.print_("\n[bold]Actions[/bold]")
     run_robocopy(from_dir, temp_dir, dir_size_bytes, dry_run=dry_run)
-    # TODO: compare source and destination size here?
     delete_symlink(to_dir, dry_run=dry_run)
     rename_folder(temp_dir, to_dir, dry_run=dry_run)
     delete_folder(from_dir, dry_run=dry_run)
