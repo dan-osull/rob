@@ -6,7 +6,7 @@ from pathlib import WindowsPath
 from click import ClickException
 
 import console as con
-from folders import Folder, FolderLibrary
+from folders import Folder, Library
 from robocopy import run_robocopy
 
 
@@ -68,6 +68,26 @@ def test_dir_creation(path: WindowsPath) -> None:
     finally:
         if path.exists():
             path.rmdir()
+    con.print_success()
+
+
+def test_set_ntfs_permisisons(source: WindowsPath, target: WindowsPath) -> None:
+    con.print_(
+        f"Testing access to copy permissions from {con.style_path(source)} to {con.style_path(target)}",
+        end="",
+    )
+    try:
+        source.mkdir()
+        run_robocopy(source, target, copy_permissions=True, quiet=True)
+    except ClickException as e:
+        if "Copying NTFS Security to Destination Directory" in e.message:
+            raise ClickException(
+                "Unable to set permissions. Do you need to run Command Prompt as Administrator?"
+            ) from e
+        raise e
+    finally:
+        source.rmdir()
+        target.rmdir()
     con.print_success()
 
 
@@ -158,61 +178,65 @@ def delete_folder(path: WindowsPath, dry_run: bool = False) -> None:
     con.print_success()
 
 
-def add_folder_actions(folder: Folder, library: FolderLibrary, dry_run: bool) -> None:
+def add_folder_actions(folder: Folder, library: Library, dry_run: bool) -> None:
     """
     Filesystem actions for `add` command
 
     Move data from `folder.source_dir` to `folder.get_target_dir()`
     """
     from_dir = folder.source_dir
-    to_dir = folder.get_target_dir(library.library_folder)
+    to_dir = folder.get_library_subdir(library)
     temp_dir = folder.get_temp_dir()
-    source_size_bytes = get_dir_size(from_dir)
+    dir_size_bytes = get_dir_size(from_dir)
 
     con.print_("\n[bold]Pre-flight checks[/bold]")
     test_dir_creation(to_dir)
     test_dir_creation(temp_dir)
     # Test symlink with sibling of source dir - it should have similar permissions
     test_symlink_creation(temp_dir, to_dir)
-    test_disk_space(source_size_bytes, DiskUsage(to_dir.drive))
+    test_disk_space(dir_size_bytes, DiskUsage(to_dir.drive))
+    # Use empty directory for testing permissions
+    test_set_ntfs_permisisons(temp_dir, to_dir)
 
     con.print_("\n[bold]Actions[/bold]")
     rename_folder(from_dir, temp_dir, dry_run=dry_run)
     run_robocopy(
         temp_dir,
         to_dir,
+        dir_size_bytes,
         dry_run=dry_run,
-        source_size_bytes=source_size_bytes,
         copy_permissions=True,
     )
+    # TODO: compare source and destination size here?
     create_symlink(from_dir, to_dir, dry_run=dry_run)
     delete_folder(temp_dir, dry_run=dry_run)
 
 
-def remove_folder_actions(
-    folder: Folder, library: FolderLibrary, dry_run: bool
-) -> None:
+def remove_folder_actions(folder: Folder, library: Library, dry_run: bool) -> None:
     """
     Filesystem actions for `remove` command
 
     Move data from `folder.get_target_dir()` to `folder.source_dir`
     """
-    from_dir = folder.get_target_dir(library.library_folder)
+    from_dir = folder.get_library_subdir(library)
     to_dir = folder.source_dir
     temp_dir = folder.get_temp_dir()
-    source_size_bytes = get_dir_size(from_dir)
+    dir_size_bytes = get_dir_size(from_dir)
 
     if not from_dir.exists():
         raise ClickException(f"{from_dir} does not exist")
         # TODO: how to handle? remove library entry?
 
     con.print_("\n[bold]Pre-flight checks[/bold]")
+    # Sibling of source dir
     test_dir_creation(temp_dir)
+    # Subdir of library
     test_dir_creation(library.get_test_dir())
-    test_disk_space(source_size_bytes, DiskUsage(to_dir.drive))
+    test_disk_space(dir_size_bytes, DiskUsage(to_dir.drive))
 
     con.print_("\n[bold]Actions[/bold]")
-    run_robocopy(from_dir, temp_dir, source_size_bytes, dry_run=dry_run)
+    run_robocopy(from_dir, temp_dir, dir_size_bytes, dry_run=dry_run)
+    # TODO: compare source and destination size here?
     delete_symlink(to_dir, dry_run=dry_run)
     rename_folder(temp_dir, to_dir, dry_run=dry_run)
     delete_folder(from_dir, dry_run=dry_run)

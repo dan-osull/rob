@@ -9,6 +9,7 @@ from console import (
     HELP_OPTIONS_COLOR,
     confirm_action,
     print_,
+    print_library_folder_count,
     print_library_table,
     print_success,
     print_title,
@@ -17,7 +18,7 @@ from console import (
 )
 from exceptions import show_red_error
 from filesystem import add_folder_actions, remove_folder_actions
-from folders import Folder, FolderLibrary
+from folders import Folder, Library
 
 
 def library_folder_option(function):
@@ -51,16 +52,19 @@ def cli(ctx, library_folder: WindowsPath):
         # Show help and list library if no command provided
         click.echo(cli.get_help(ctx))
         print_("")
-        print_library_table(library_folder)
+        # TODO: put library info here again
 
 
 @cli.command(name="list")
 @library_folder_option
 def list_(library_folder: WindowsPath):
     """List folders in library"""
-    print_library_table(library_folder)
-    # TODO: display disk space
-    # TODO: version that shows size of library folders
+    library = Library(library_folder)
+    table_data = library.get_table_data(get_size=True)
+    print_library_folder_count(library)
+    if table_data:
+        print_library_table(table_data)
+    # TODO: option / command for disk space
 
 
 def dry_run_option(function):
@@ -94,7 +98,7 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath, dry_run: bool):
     # Resolve path to fix capitalisation
     # Do this after symlink check to avoid resolving symlink!
     folder_path = folder_path.resolve()
-    library = FolderLibrary(library_folder)
+    library = Library(library_folder)
     if folder_path in library.source_dirs:
         raise ClickException(f"Cannot add folder. {folder_path} is already in library.")
 
@@ -112,15 +116,13 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath, dry_run: bool):
 
     if not dry_run:
         # Load library again in case it has been updated by another process
-        library = FolderLibrary(library_folder)
+        library = Library(library_folder)
         library.add_folder(folder)
         library.save()
         print_(
-            f"\n[bold]Added {style_path(folder.source_dir)} with name {style_path(folder.target_dir_name)} to {style_library(library)} [/bold]"
+            f"\n[bold]Added {style_path(folder.source_dir)} with name {style_path(folder.short_name)} to {style_library(library)} [/bold]"
         )
-        print_(
-            f"Data is now in subfolder with name {style_path(folder.target_dir_name)}"
-        )
+        print_(f"Data is now in subfolder with name {style_path(folder.short_name)}")
         print_(f"{style_path(folder.source_dir)} [bold]is[/bold] a symlink")
     else:
         print_success("\nDry run result:")
@@ -133,24 +135,24 @@ def add(folder_path: WindowsPath, library_folder: WindowsPath, dry_run: bool):
 def remove(folder_path: str, library_folder: WindowsPath, dry_run: bool):
     """Remove FOLDER_PATH from library"""
     # Not casting folder_path to Path type so that we can search for target_dir_name too
-    library = FolderLibrary(library_folder)
+    library = Library(library_folder)
     folder = library.find_folder(folder_path)
     if not folder:
         raise ClickException(f"Cannot find folder information: {folder_path}.")
 
     print_(
-        f"[bold]Remove folder {style_path(folder.source_dir)} with name {style_path(folder.target_dir_name)} from {style_library(library)}[/bold]"
+        f"[bold]Remove folder {style_path(folder.source_dir)} with name {style_path(folder.short_name)} from {style_library(library)}[/bold]"
     )
     confirm_action(dry_run=dry_run)
     remove_folder_actions(folder, library, dry_run=dry_run)
 
     if not dry_run:
         # Load library again in case it has been updated by another process
-        library = FolderLibrary(library_folder)
+        library = Library(library_folder)
         library.remove_folder(folder)
         library.save()
         print_(
-            f"\n[bold]Removed {style_path(folder.source_dir)} with name {style_path(folder.target_dir_name)} from {style_library(library)} [/bold]"
+            f"\n[bold]Removed {style_path(folder.source_dir)} with name {style_path(folder.short_name)} from {style_library(library)} [/bold]"
         )
         print_(f"Data is now at {style_path(folder.source_dir)}")
         print_(f"{style_path(folder.source_dir)} is [bold]not[/bold] a symlink")

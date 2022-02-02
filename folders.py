@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 import json
 from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import WindowsPath
-from typing import ClassVar, Optional, Union
+from typing import ClassVar, Optional
 
+import filesystem
 from constants import PROJECT_NAME
 
 
@@ -14,41 +17,44 @@ class Folder:
     source_dir: WindowsPath
     """The path of the folder on the source disk. It becomes replaced by a symlink."""
 
-    def __init__(self, source_dir: Union[WindowsPath, str]):
-        self.source_dir = WindowsPath(source_dir)
+    def __post_init__(self):
+        self.source_dir = WindowsPath(self.source_dir)
+
+    def get_library_subdir(self, library: Library) -> WindowsPath:
+        """A subfolder of the library. It is the target for data."""
+        return library.library_folder.joinpath(self.short_name).resolve()
+
+    def get_temp_dir(self) -> WindowsPath:
+        """Temp dir is a sibling of the source. It is used for shuffling data and testing access."""
+        temp_dir_name = f"_{PROJECT_NAME}_temp_{self.short_name}"
+        return self.source_dir.parent.joinpath(temp_dir_name).resolve()
+
+    def get_library_data_size(self, library) -> int:
+        return filesystem.get_dir_size(self.get_library_subdir(library))
 
     @property
-    def target_dir_name(self) -> str:
+    def short_name(self) -> str:
         """A new name for the folder that includes a hash of its path"""
         # e.g. Git(6079d94ba840)
         return f"{self.source_dir.name}({self._source_dir_hash})"
-
-    def get_target_dir(self, library_folder: WindowsPath) -> WindowsPath:
-        """Target dir is subfolder of library. It is the destination for data."""
-        return library_folder.joinpath(self.target_dir_name).resolve()
-
-    @property
-    def temp_dir_name(self) -> str:
-        return f"_{PROJECT_NAME}_temp_{self.target_dir_name}"
-
-    def get_temp_dir(self) -> WindowsPath:
-        """Temp dir is a sibling of the source. It is used for shuffling data."""
-        return self.source_dir.parent.joinpath(self.temp_dir_name).resolve()
 
     @property
     def _source_dir_hash(self) -> str:
         # lower() so paths get same hash regardless of capitalisation
         return sha256(str(self.source_dir).lower().encode("utf-8")).hexdigest()[:12]
 
-    def get_table_data(self) -> dict:
-        return {"Path": self.source_dir, "Name": self.target_dir_name}
+    def get_table_data(self, library: Library, get_size: bool = False) -> dict:
+        result = {"Path": self.source_dir, "Name": self.short_name}
+        if get_size:
+            result["Size"] = self.get_library_data_size(library)
+        return result
 
 
 @dataclass
-class FolderLibrary:
+class Library:
     config_filename: ClassVar = f"{PROJECT_NAME}-folders.json"
     library_folder: WindowsPath
-    """The library is the folder that contains the config file"""
+    """The library is the folder that contains the config file and target data folders"""
     config_path: WindowsPath
     folders: list[Folder]
 
@@ -80,10 +86,10 @@ class FolderLibrary:
         )
         if match:
             return match
-        return next((x for x in self.folders if x.target_dir_name == search_term), None)
+        return next((x for x in self.folders if x.short_name == search_term), None)
 
-    def get_table_data(self) -> list[dict]:
-        return [item.get_table_data() for item in self.folders]
+    def get_table_data(self, get_size: bool = False) -> list[dict]:
+        return [item.get_table_data(self, get_size=get_size) for item in self.folders]
 
     def get_test_dir(self) -> WindowsPath:
         """Directory in library for testing write access"""
