@@ -73,6 +73,9 @@ def print_title() -> None:
     # See logo.txt for original
     logo_text = "               __\n   _________  / /_ \n  / ___/ __ \\/ __ \\\n / /  / /_/ / /_/ /\n/_/   \\____/_.___/ \n"
     print_(f"[bold][purple]{logo_text}[/purple][/bold]")
+    print_(
+        "[bold]Help:[/bold] [link=https://github.com/dan-osull/rob/]https://github.com/dan-osull/rob/[/link]\n"
+    )
 
 
 def style_project() -> str:

@@ -4,17 +4,9 @@ import click
 from click import ClickException
 from click_help_colors import HelpColorsGroup
 
-from console import (
-    HELP_HEADERS_COLOR,
-    HELP_OPTIONS_COLOR,
-    confirm_action,
-    print_,
-    print_library_table_and_folder_count,
-    print_success,
-    print_title,
-    style_library,
-    style_path,
-)
+from console import (HELP_HEADERS_COLOR, HELP_OPTIONS_COLOR, confirm_action,
+                     print_, print_library_table_and_folder_count,
+                     print_success, print_title, style_library, style_path)
 from exceptions import show_red_error
 from filesystem import add_folder_actions, remove_folder_actions
 from folders import Folder, Library
@@ -42,7 +34,11 @@ def library_folder_option(function):
 @click.pass_context
 @library_folder_option
 def cli(ctx, library_folder: WindowsPath):
-    """Utility for..."""
+    """
+    rob is a command line tool that frees up space on your SSD by moving data to a library of folders on another disk.
+
+    rob creates a symlink from the original location to the library so that games continue to work and can be updated.
+    """
     ClickException.show = show_red_error
     # TODO: doesn't change color of subclasses with custom show() e.g. error on exists=True
     print_title()
@@ -58,7 +54,7 @@ def cli(ctx, library_folder: WindowsPath):
 @cli.command(name="list")
 @library_folder_option
 def list_(library_folder: WindowsPath):
-    """List folders in library"""
+    """List folders in library and their size"""
     library = Library(library_folder)
     print_library_table_and_folder_count(library, show_size=True)
 
@@ -70,7 +66,7 @@ def dry_run_option(function):
         default=False,
         type=bool,
         is_flag=True,
-        help="Run pre-flight checks but do not move data",
+        help="Run pre-flight checks but do not move data.",
     )(function)
 
 
@@ -82,7 +78,7 @@ def dry_run_option(function):
     default=False,
     type=bool,
     is_flag=True,
-    help="Do not copy NTFS permissions (advanced)",
+    help="Do not copy NTFS permissions (advanced).",
 )
 @click.argument(
     "folder-path",
@@ -98,7 +94,11 @@ def add(
     dry_run: bool,
     dont_copy_permissions: bool,
 ):
-    """Add FOLDER_PATH to library"""
+    """
+    Add FOLDER_PATH to library
+
+    Data is moved to the library folder and the original location is replaced by a symlink.
+    """
     if folder_path.is_symlink():
         raise ClickException(
             f"Cannot add folder. {folder_path} is a symlink. Is it already in library?"
@@ -155,7 +155,11 @@ def add(
 @dry_run_option
 @click.argument("folder-path")
 def remove(folder_path: str, library_folder: WindowsPath, dry_run: bool):
-    """Remove FOLDER_PATH from library"""
+    """
+    Remove FOLDER_PATH from library
+
+    Data is restored to its original location.
+    """
     # Not casting folder_path to Path type so that we can search for target_dir_name too
     library = Library(library_folder)
     folder = library.find_folder(folder_path)
