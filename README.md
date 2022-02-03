@@ -1,14 +1,14 @@
 Is your SSD full of games that you don't want to delete?
 
-Do you have a slow or metered internet connection that means it's impractical to download games on demand?
+Do you have a slow or metered internet connection that means it's impractical to uninstall and re-download games at will?
 
-`rob` is a command line tool that frees up space on your SSD by moving data to a library of folders on another disk.
+`rob` is a command line tool for Windows that frees up space on your SSD by moving data to a library of folders on another disk.
 
 `rob` creates a [symlink](https://en.wikipedia.org/wiki/Symbolic_link) from the original location to the library so that games continue to work and can be updated.
 
 The process is reversible: `rob` can move a game back to your fast disk on demand. This is quicker than downloading it again and doesn't use any of your data allowance.
 
-While `rob` was designed with games in mind it works with folders of any type.
+While `rob` was designed with games and SSDs in mind it works with folders and drives of any type.
 
 ## How to use
 
@@ -73,7 +73,7 @@ In this example, I'm going to use `rob` to move GTA5 from a small fast SSD (driv
    _________  / /_
   / ___/ __ \/ __ \
  / /  / /_/ / /_/ /
-/_/   \____/_.___/
+/_/   \____/_.___/  v. 0.1
 
 Help: https://github.com/dan-osull/rob/
 
@@ -100,7 +100,7 @@ Commands:
 
 No. But you may get a false positive, in which case you need to tell your security software to unblock/allow `rob`.
 
-Feel free to browse the code and make your own exe with **build_exe.cmd**
+Feel free to browse the code and make your own exe with `build_exe.cmd`
 
 ## Does `rob` need Administrator access?
 

@@ -6,7 +6,7 @@ from rich.console import Console
 from tabulate import tabulate
 
 import filesystem
-from constants import PROJECT_NAME
+from constants import PROJECT_NAME, VERSION
 from folders import Library
 
 # click.termui._ansi_colors
@@ -71,8 +71,8 @@ def print_skipped() -> None:
 def print_title() -> None:
     # Font Slant at https://patorjk.com/software/taag/#p=display&f=Slant&t=rob
     # See logo.txt for original
-    logo_text = "               __\n   _________  / /_ \n  / ___/ __ \\/ __ \\\n / /  / /_/ / /_/ /\n/_/   \\____/_.___/ \n"
-    print_(f"[bold][purple]{logo_text}[/purple][/bold]")
+    logo_text = "               __\n   _________  / /_ \n  / ___/ __ \\/ __ \\\n / /  / /_/ / /_/ /\n/_/   \\____/_.___/"
+    print_(f"[bold][purple]{logo_text}[/purple][/bold]  v. {VERSION}\n")
     print_(
         "[bold]Help:[/bold] [link=https://github.com/dan-osull/rob/]https://github.com/dan-osull/rob/[/link]\n"
     )

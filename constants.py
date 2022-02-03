@@ -1,1 +1,2 @@
 PROJECT_NAME = "rob"
+VERSION = "0.1"
