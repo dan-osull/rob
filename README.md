@@ -24,11 +24,11 @@ In this example, I'm going to use `rob` to move GTA5 from a small fast SSD (driv
 
 2. Download **rob.exe** and put it in your `rob` library folder.
 
-![Screenshot](screenshots\exe_in_folder(small).png)
+![Screenshot](screenshots/exe_in_folder(small).png)
 
 3. Search the Start menu for **cmd**. Right click the **Command Prompt** result and select **Run as Administrator**.
 
-![Screenshot](screenshots\start_menu(small).png)
+![Screenshot](screenshots/start_menu(small).png)
 
 4. In the command prompt, change directory to your `rob` library by entering:
 
