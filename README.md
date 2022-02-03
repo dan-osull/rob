@@ -1,6 +1,6 @@
-Is your SSD full of games that you don't want to delete?
+**Is your SSD full of games that you don't want to delete?**
 
-Do you have a slow or metered internet connection that means it's impractical to uninstall and re-download games at will?
+**Do you have a slow or metered internet connection and it's impractical to re-download games at will?**
 
 `rob` is a command line tool for Windows that frees up space on your SSD by moving data to a library of folders on another disk.
 
@@ -8,7 +8,11 @@ Do you have a slow or metered internet connection that means it's impractical to
 
 The process is reversible: `rob` can move a game back to your fast disk on demand. This is quicker than downloading it again and doesn't use any of your data allowance.
 
-While `rob` was designed with games and SSDs in mind it works with folders and drives of any type.
+`rob` was designed with games and SSDs in mind but it works with folders and drives of any type.
+
+## Download
+
+Goes here.
 
 ## How to use
 
@@ -20,9 +24,13 @@ In this example, I'm going to use `rob` to move GTA5 from a small fast SSD (driv
 
 2. Download **rob.exe** and put it in your `rob` library folder.
 
+![Screenshot](screenshots\exe_in_folder(small).png)
+
 3. Search the Start menu for **cmd**. Right click the **Command Prompt** result and select **Run as Administrator**.
 
-4. In the command prompt, change directory to your `rob` library by typing:
+![Screenshot](screenshots\start_menu(small).png)
+
+4. In the command prompt, change directory to your `rob` library by entering:
 
         pushd "d:\rob_library"
 
@@ -39,6 +47,8 @@ In this example, I'm going to use `rob` to move GTA5 from a small fast SSD (driv
 7. Run the same command without `--dry-run` to move data:
 
         rob add "C:\Program Files\Epic Games\GTAV"
+
+   It may take a while to copy data. It depends on the size of the folder and the speed of your drives.
 
 8. Done! The game data is now stored in a subfolder of your `rob` library. The original path is a symlink and continues to work.
 
