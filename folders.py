@@ -80,6 +80,13 @@ class Library:
     def source_dirs(self) -> list[WindowsPath]:
         return [folder.source_dir for folder in self.folders]
 
+    @property
+    def disk_usage(self) -> list[filesystem.DiskUsage]:
+        """Usage for disk containing library and any source disks"""
+        paths = [self.library_folder] + self.source_dirs
+        drives = sorted({path.drive for path in paths})
+        return [filesystem.DiskUsage(drive) for drive in drives]
+
     def find_folder(self, search_term: str) -> Optional[Folder]:
         """Search library using `source_dir` and `target_dir_name` fields"""
         match = next(

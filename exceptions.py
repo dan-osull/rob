@@ -1,9 +1,8 @@
-from gettext import gettext
-
 from click import secho
 
 
-def show_red_error(self, file=None) -> None:
-    """Monkey patch for `click.exceptions.ClickException.show`"""
-    assert not file
-    secho(gettext("\nError: {message}").format(message=self.format_message()), fg="red")
+def echo_red_error(message, *args, **kwargs):
+    """Patch for `click.exceptions.echo`"""
+    if str(message).startswith("Error: "):
+        return secho(message, *args, **kwargs, fg="red")
+    return secho(message, *args, **kwargs)

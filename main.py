@@ -4,10 +4,18 @@ import click
 from click import ClickException
 from click_help_colors import HelpColorsGroup
 
-from console import (HELP_HEADERS_COLOR, HELP_OPTIONS_COLOR, confirm_action,
-                     print_, print_library_table_and_folder_count,
-                     print_success, print_title, style_library, style_path)
-from exceptions import show_red_error
+from console import (
+    HELP_HEADERS_COLOR,
+    HELP_OPTIONS_COLOR,
+    confirm_action,
+    print_,
+    print_library_info,
+    print_success,
+    print_title,
+    style_library,
+    style_path,
+)
+from exceptions import echo_red_error
 from filesystem import add_folder_actions, remove_folder_actions
 from folders import Folder, Library
 
@@ -39,8 +47,7 @@ def cli(ctx, library_folder: WindowsPath):
 
     rob creates a symlink from the original location to the library so that games continue to work and can be updated.
     """
-    ClickException.show = show_red_error
-    # TODO: doesn't change color of subclasses with custom show() e.g. error on exists=True
+    click.exceptions.echo = echo_red_error  # type: ignore
     print_title()
 
     if ctx.invoked_subcommand is None:
@@ -48,7 +55,7 @@ def cli(ctx, library_folder: WindowsPath):
         click.echo(cli.get_help(ctx))
         print_("")
         library = Library(library_folder)
-        print_library_table_and_folder_count(library)
+        print_library_info(library)
 
 
 @cli.command(name="list")
@@ -56,7 +63,7 @@ def cli(ctx, library_folder: WindowsPath):
 def list_(library_folder: WindowsPath):
     """List folders in library and their size"""
     library = Library(library_folder)
-    print_library_table_and_folder_count(library, show_size=True)
+    print_library_info(library, show_size=True)
 
 
 def dry_run_option(function):
@@ -80,6 +87,13 @@ def dry_run_option(function):
     is_flag=True,
     help="Do not copy NTFS permissions (advanced).",
 )
+@click.option(
+    "--allow-same-disk",
+    default=False,
+    type=bool,
+    is_flag=True,
+    help="Allow source folder to be on same disk as rob library (advanced).",
+)
 @click.argument(
     "folder-path",
     type=click.Path(
@@ -93,6 +107,7 @@ def add(
     library_folder: WindowsPath,
     dry_run: bool,
     dont_copy_permissions: bool,
+    allow_same_disk: bool,
 ):
     """
     Add FOLDER_PATH to library
@@ -110,8 +125,9 @@ def add(
 
     if folder_path in library.source_dirs:
         raise ClickException(f"Cannot add folder. {folder_path} is already in library.")
+
     folder = Folder(source_dir=folder_path)
-    if library.library_folder.drive == folder.source_dir.drive:
+    if library.library_folder.drive == folder.source_dir.drive and not allow_same_disk:
         raise ClickException(
             f"Cannot add {folder_path}. Source folder and library should be on different disks. "
         )
@@ -197,3 +213,4 @@ if __name__ == "__main__":
     # Entry point for application
     cli()  # pylint: disable=no-value-for-parameter
     # TODO: should we try to clean up library and filesystem if left in an inconsistent state?
+    print_("")

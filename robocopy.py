@@ -1,13 +1,42 @@
 import os
 import subprocess
+from dataclasses import dataclass
 from pathlib import WindowsPath
 from time import sleep
+from typing import Optional, Sequence
 
 from click import ClickException
 from rich.progress import Progress
 
 import console as con
 import filesystem
+
+
+@dataclass
+class RobocopyResults:
+    options: list[str]
+    # Using Sequence because "list" and other mutable container types are
+    # considered "invariant", so the contained type needs to match exactly.
+    # https://github.com/microsoft/pyright/issues/130
+    errors: Sequence[Optional[str]]
+    stats: list[str]
+
+
+def parse_robocopy_output(
+    output: str,
+) -> RobocopyResults:
+    output_list = output.split("\n")
+    output_list = [line for line in output_list if line]
+    divider_idx = []
+    for index, line in enumerate(output_list):
+        # 50 chars long. Finds dividers in output, which are 78/79 chars.
+        if "--------------------------------------------------" in line:
+            divider_idx.append(index)
+    return RobocopyResults(
+        options=output_list[divider_idx[1] + 1 : divider_idx[2]],
+        errors=output_list[divider_idx[2] + 1 : divider_idx[3]],
+        stats=output_list[divider_idx[3] + 1 :],
+    )
 
 
 def run_robocopy(
@@ -17,7 +46,7 @@ def run_robocopy(
     dry_run: bool = False,
     copy_permissions: bool = False,
     quiet=False,
-):
+) -> None:
     msg = f"Copying data from {con.style_path(source)} to {con.style_path(target)}"
     if not dir_size_bytes:
         dir_size_bytes = filesystem.get_dir_size(source)
@@ -72,26 +101,18 @@ def run_robocopy(
                 )
                 progress.update(task_id, completed=filesystem.get_dir_size(target))
                 progress.refresh()
-                sleep(5)
+                sleep(3)
 
     output = proc.stdout.read()  # type: ignore
-    output = output.split("\n")
-    output = [line for line in output if line]
     # Exit code cannot be trusted as, for example, this error:
     # ERROR 5 (0x00000005) Copying NTFS Security to Destination Directory
-    # can be present despite returncode 0, so let's look for the error ourselves
-    # Looking for " (0x000" in case there's a folder called ERROR!
-    error_line = next(
-        (line for line in output if " ERROR " in line and " (0x000" in line), None
-    )
-    if error_line:
-        # Get ERROR and all following lines
-        error = output[output.index(error_line) :]
-        raise ClickException(f"Robocopy: {str(error)}")
+    # ...can be present despite returncode 0, so let's look for errors ourselves
+    robocopy_results = parse_robocopy_output(output)
+    if robocopy_results.errors:
+        raise ClickException(f"Robocopy: {str(robocopy_results.errors)}")
 
-    if not dir_size_bytes == 0 and filesystem.get_dir_size(target) == 0:
-        # Source was not empty but target is empty
-        raise ClickException("Target folder is empty after data copy. Aborting.")
+    if dir_size_bytes != filesystem.get_dir_size(target):
+        raise ClickException("Source and target folder sizes do not match. Aborting.")
 
     if not quiet:
         con.print_("[green]Data copy complete[/green]")

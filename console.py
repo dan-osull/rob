@@ -18,24 +18,26 @@ console = Console(highlight=False)
 print_ = console.print
 
 
-def print_disk_usage(disk: filesystem.DiskUsage) -> None:
-    # TODO: use this somewhere
-    print_(
-        f"Drive {style_path(disk.drive)} - "
-        f"{style_bytes_as_gb(disk.usage.used)} ({round(disk.usage.used/disk.usage.total*100)}%) used"
-        f"{style_bytes_as_gb(disk.usage.total)} total"
-    )
-
-
-def print_library_table_and_folder_count(
-    library: Library, show_size: bool = False
-) -> None:
+def print_library_info(library: Library, show_size: bool = False) -> None:
+    disk_usage = library.disk_usage
+    for disk in disk_usage:
+        print_disk_usage(disk)
+    print_("")
     print_library_folder_count(library)
     table_data = library.get_table_data(show_size=show_size)
     if table_data:
         print_library_table(table_data)
         if not show_size:
             print_("\nRun [bold]rob list[/bold] to see size of folders.")
+
+
+def print_disk_usage(disk: filesystem.DiskUsage) -> None:
+    print_(
+        f"Drive {style_path(disk.drive)} "
+        f"{style_bytes_as_gb((disk.usage.used),ndigits=None)} used / "
+        f"{style_bytes_as_gb(disk.usage.total,ndigits=None)} total "
+        f"({round(disk.usage.used/disk.usage.total*100)}% full)"
+    )
 
 
 def print_library_folder_count(library: Library) -> None:
@@ -72,7 +74,7 @@ def print_title() -> None:
     # Font Slant at https://patorjk.com/software/taag/#p=display&f=Slant&t=rob
     # See logo.txt for original
     logo_text = "               __\n   _________  / /_ \n  / ___/ __ \\/ __ \\\n / /  / /_/ / /_/ /\n/_/   \\____/_.___/"
-    print_(f"[bold][purple]{logo_text}[/purple][/bold]  v. {VERSION}\n")
+    print_(f"[bold][purple]{logo_text}[/purple][/bold]  v.{VERSION}\n")
     print_(
         "[bold]Help:[/bold] [link=https://github.com/dan-osull/rob/]https://github.com/dan-osull/rob/[/link]\n"
     )
@@ -91,8 +93,8 @@ def style_path(obj: Union[WindowsPath, str]) -> str:
     return f"[cyan]{str(obj)}[/cyan]"
 
 
-def style_bytes_as_gb(size_bytes: int) -> str:
-    gigabytes = round(size_bytes / 1024**3, 1)
+def style_bytes_as_gb(size_bytes: int, ndigits=1) -> str:
+    gigabytes = round(size_bytes / 1024**3, ndigits)
     return f"{gigabytes} GB"
 
 
