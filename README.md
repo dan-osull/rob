@@ -83,11 +83,11 @@ In this example, I'm going to use `rob` to move GTA5 from a small fast SSD (driv
    _________  / /_
   / ___/ __ \/ __ \
  / /  / /_/ / /_/ /
-/_/   \____/_.___/  v. 0.1
+/_/   \____/_.___/  v.0.1.1
 
 Help: https://github.com/dan-osull/rob/
 
-Usage: rob [OPTIONS] COMMAND [ARGS]...
+Usage: rob.exe [OPTIONS] COMMAND [ARGS]...
 
   rob is a command line tool that frees up space on your SSD by moving data to
   a library of folders on another disk.
@@ -102,7 +102,7 @@ Options:
 
 Commands:
   add     Add FOLDER_PATH to library
-  list    List folders in library and show their size
+  list    List folders in library and their size
   remove  Remove FOLDER_PATH from library
 ```
 
