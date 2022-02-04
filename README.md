@@ -12,7 +12,7 @@ The process is reversible: `rob` can move a game back to your SSD on demand. Thi
 
 ## Download
 
-- **[rob v0.1 (ZIP, 9.2MB)](https://github.com/dan-osull/rob/releases/download/v0.1/rob-0.1.zip)**
+- **[rob-0.1.1.zip](https://github.com/dan-osull/rob/releases/download/v0.1.1/rob-v.0.1.1.zip)** (9.2MB)
 
 ## How to use
 
@@ -22,7 +22,7 @@ In this example, I'm going to use `rob` to move GTA5 from a small fast SSD (driv
 
 1. Create a folder on your big disk for your `rob` library. This will be the destination for data. I'm using **D:\rob_library**.
 
-2. Download **[rob-0.1.zip](https://github.com/dan-osull/rob/releases/download/v0.1/rob-0.1.zip)**. Copy **rob.exe** from the ZIP file to your `rob` library folder.
+2. Download **[rob-0.1.1.zip](https://github.com/dan-osull/rob/releases/download/v0.1.1/rob-v.0.1.1.zip)**. Copy **rob.exe** from the ZIP file to your `rob` library folder.
 
 ![Screenshot](screenshots/exe_in_folder(small).png)
 
@@ -120,11 +120,11 @@ The long answer is that `rob` can work without admin access if:
 
 1. You have enabled [Windows Developer Mode](https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development), which lets normal users create symlinks.
 2. You are not copying from a protected area of the operating system, like Program Files.
-3. You run **rob add** with the **--dont-copy-permissions** flag, as you tyoically need admin access to set permissions. This could have negative implications for security.
+3. You run **rob add** with the **--dont-copy-permissions** flag, as you typically need admin access to set permissions. This could have negative implications for security.
 
 Because `rob` is designed for games, which are usually in Program Files, in practice it is easiest to run the tool from an admin Command Prompt.
 
-## Can't I just copy a folder and make a symlink myself?
+## Can't I just move a folder and make a symlink myself?
 
 Shut up.
 

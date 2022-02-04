@@ -1,2 +1,2 @@
 PROJECT_NAME = "rob"
-VERSION = "0.1"
+VERSION = "0.1.1"
