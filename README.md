@@ -6,13 +6,13 @@
 
 `rob` creates a [symlink](https://en.wikipedia.org/wiki/Symbolic_link) from the original location to the library so that games continue to work and can be updated.
 
-The process is reversible: `rob` can move a game back to your fast disk on demand. This is quicker than downloading it again and doesn't use any of your data allowance.
+The process is reversible: `rob` can move a game back to your SSD on demand. This is quicker than downloading it again and doesn't use any of your data allowance.
 
 `rob` was designed with games and SSDs in mind but it works with folders and drives of any type.
 
 ## Download
 
-Goes here.
+- **[rob v0.1 (ZIP, 9.2MB)](https://github.com/dan-osull/rob/releases/download/v0.1/rob-0.1.zip)**
 
 ## How to use
 
@@ -22,7 +22,7 @@ In this example, I'm going to use `rob` to move GTA5 from a small fast SSD (driv
 
 1. Create a folder on your big disk for your `rob` library. This will be the destination for data. I'm using **D:\rob_library**.
 
-2. Download **rob.exe** and put it in your `rob` library folder.
+2. Download **[rob-0.1.zip](https://github.com/dan-osull/rob/releases/download/v0.1/rob-0.1.zip)**. Copy **rob.exe** from the ZIP file to your `rob` library folder.
 
 ![Screenshot](screenshots/exe_in_folder(small).png)
 
@@ -120,7 +120,7 @@ The long answer is that `rob` can work without admin access if:
 
 1. You have enabled [Windows Developer Mode](https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development), which lets normal users create symlinks.
 2. You are not copying from a protected area of the operating system, like Program Files.
-3. You run **rob add** with the **--dont-copy-permissions** flag, as typically only admins can set permissions. This could have negative implications for security.
+3. You run **rob add** with the **--dont-copy-permissions** flag, as you tyoically need admin access to set permissions. This could have negative implications for security.
 
 Because `rob` is designed for games, which are usually in Program Files, in practice it is easiest to run the tool from an admin Command Prompt.
 
