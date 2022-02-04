@@ -19,6 +19,7 @@ print_ = console.print
 
 
 def print_library_info(library: Library, show_size: bool = False) -> None:
+    print_("")
     disk_usage = library.disk_usage
     for disk in disk_usage:
         print_disk_usage(disk)

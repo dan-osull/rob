@@ -51,7 +51,7 @@ def cli(ctx, library_folder: WindowsPath):
     print_title()
 
     if ctx.invoked_subcommand is None:
-        # Show help and list library if no command provided
+        # Show help and library info if no command provided
         click.echo(cli.get_help(ctx))
         print_("")
         library = Library(library_folder)
@@ -143,10 +143,8 @@ def add(
         raise ClickException(
             f"Cannot add {folder_path} because it is the child of an existing source folder."
         )
-
-    print_(
-        f"[bold]Add folder {style_path(folder.source_dir)} to {style_library(library)}[/bold]"
-    )
+    msg = f"[bold]Add folder {style_path(folder.source_dir)} to {style_library(library)}[/bold]"
+    print_(msg)
     confirm_action(dry_run=dry_run)
     add_folder_actions(
         folder, library, dry_run=dry_run, dont_copy_permissions=dont_copy_permissions
@@ -157,9 +155,7 @@ def add(
         library = Library(library_folder)
         library.add_folder(folder)
         library.save()
-        print_(
-            f"\n[bold]Added {style_path(folder.source_dir)} with name {style_path(folder.short_name)} to {style_library(library)}[/bold]"
-        )
+        print_success("\n" + msg)
         print_(f"Data is now in subfolder with name {style_path(folder.short_name)}")
         print_(f"{style_path(folder.source_dir)} [bold]is[/bold] a symlink")
     else:
@@ -189,9 +185,8 @@ def remove(folder_path: str, library_folder: WindowsPath, dry_run: bool):
             f"{folder.get_library_subdir(library)} does not exist. Removed from folder list."
         )
 
-    print_(
-        f"[bold]Remove folder {style_path(folder.source_dir)} with name {style_path(folder.short_name)} from {style_library(library)}[/bold]"
-    )
+    msg = f"[bold]Remove folder {style_path(folder.source_dir)} with name {style_path(folder.short_name)} from {style_library(library)}[/bold]"
+    print_(msg)
     confirm_action(dry_run=dry_run)
     remove_folder_actions(folder, library, dry_run=dry_run)
 
@@ -200,9 +195,7 @@ def remove(folder_path: str, library_folder: WindowsPath, dry_run: bool):
         library = Library(library_folder)
         library.remove_folder(folder)
         library.save()
-        print_(
-            f"\n[bold]Removed {style_path(folder.source_dir)} with name {style_path(folder.short_name)} from {style_library(library)}[/bold]"
-        )
+        print_success("\n" + msg)
         print_(f"Data is now at {style_path(folder.source_dir)}")
         print_(f"{style_path(folder.source_dir)} is [bold]not[/bold] a symlink")
     else:

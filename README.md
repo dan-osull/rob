@@ -1,6 +1,6 @@
 **Is your SSD full of games that you don't want to delete?**
 
-**Do you have a slow or metered internet connection and it's impractical to re-download games at will?**
+**Do you have a slow or metered internet connection and you can't download the same game several times?**
 
 `rob` is a command line tool for Windows that frees up space on your SSD by moving data to a library of folders on another disk.
 
@@ -8,7 +8,7 @@
 
 The process is reversible: `rob` can move a game back to your SSD on demand. This is quicker than downloading it again and doesn't use any of your data allowance.
 
-`rob` was designed with games and SSDs in mind but it works with folders and drives of any type.
+`rob` was designed with games and SSDs in mind but it works with folders and disks of any type.
 
 ## Download
 
@@ -36,7 +36,9 @@ In this example, I'm going to use `rob` to move GTA5 from a small fast SSD (driv
 
 5. Make sure that the game you're moving and its app store are not running. (Check the notification area/system tray in the bottom right of your screen.)
 
-6. Add the GTA5 folder to `rob`, using dry run mode to check for any problems:
+![Screenshot](screenshots/exit_store(small).png)
+
+6. Run `rob add` in dry run mode to check for any problems:
 
         rob add "C:\Program Files\Epic Games\GTAV" --dry-run
 
@@ -44,13 +46,13 @@ In this example, I'm going to use `rob` to move GTA5 from a small fast SSD (driv
 
     *Hint: use a utility like [WinDirStat](https://windirstat.net/) to find the biggest folders on your SSD.*
 
-7. Run the same command without `--dry-run` to move data:
+7. Run the same command without `--dry-run` to move data for real:
 
         rob add "C:\Program Files\Epic Games\GTAV"
 
    It may take a while to copy data. It depends on the size of the folder and the speed of your drives.
 
-8. Done! The game data is now stored in a subfolder of your `rob` library. The original path is a symlink and continues to work.
+8. Done! The game data is now stored in a subfolder of your `rob` library. The original path is a symlink. The game keeps working.
 
 ### Example: remove a folder from your `rob` library
 
@@ -110,7 +112,7 @@ Commands:
 
 No. But you may get a false positive, in which case you need to tell your security software to unblock/allow `rob`.
 
-Feel free to browse the code and make your own exe with `build_exe.cmd`
+Feel free to read the code and make your own exe with `build_exe.cmd`
 
 ## Does `rob` need Administrator access?
 

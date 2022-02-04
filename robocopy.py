@@ -42,7 +42,7 @@ def parse_robocopy_output(
 def run_robocopy(
     source: WindowsPath,
     target: WindowsPath,
-    dir_size_bytes: int = None,
+    dir_size_bytes: Optional[int] = None,
     dry_run: bool = False,
     copy_permissions: bool = False,
     quiet=False,
@@ -101,7 +101,7 @@ def run_robocopy(
                 )
                 progress.update(task_id, completed=filesystem.get_dir_size(target))
                 progress.refresh()
-                sleep(3)
+                sleep(2)
 
     output = proc.stdout.read()  # type: ignore
     # Exit code cannot be trusted as, for example, this error:

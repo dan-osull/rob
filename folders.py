@@ -13,10 +13,10 @@ from constants import PROJECT_NAME
 
 @dataclass
 class Folder:
-    """A folder being managed by the tool"""
+    """A folder being managed by the tool. It is identifed by `source_dir`."""
 
     source_dir: WindowsPath
-    """The path of the folder on the source disk. It becomes replaced by a symlink."""
+    """The path of the folder on the source disk. It gets replaced by a symlink."""
 
     def __post_init__(self):
         self.source_dir = WindowsPath(self.source_dir)
@@ -26,7 +26,7 @@ class Folder:
         return library.library_folder.joinpath(self.short_name).resolve()
 
     def get_temp_dir(self) -> WindowsPath:
-        """Temp dir is a sibling of the source. It is used for shuffling data and testing access."""
+        """A sibling of the source. It is used for shuffling data and testing access."""
         temp_dir_name = f"_{PROJECT_NAME}_temp_{self.short_name}"
         return self.source_dir.parent.joinpath(temp_dir_name).resolve()
 
@@ -53,9 +53,10 @@ class Folder:
 
 @dataclass
 class Library:
+    """The library is a folder that contains target data folders and a config file"""
+
     config_filename: ClassVar = f"{PROJECT_NAME}-folders.json"
     library_folder: WindowsPath
-    """The library is the folder that contains the config file and target data folders"""
     config_path: WindowsPath
     folders: list[Folder]
 
@@ -65,6 +66,9 @@ class Library:
 
         self.folders = []
         if self.config_path.exists():
+            con.print_(
+                f"[grey50]Loading folder list from {self.config_path}...[/grey50]"
+            )
             with open(self.config_path, encoding="utf8") as file:
                 self.folders = [Folder(source_dir=item) for item in json.load(file)]
 
@@ -104,5 +108,10 @@ class Library:
         return self.library_folder.joinpath(f"_{PROJECT_NAME}_test").resolve()
 
     def save(self) -> None:
-        with open(self.config_path, "w", encoding="utf8") as file:
-            file.write(json.dumps([str(item.source_dir) for item in self.folders]))
+        if self.folders:
+            con.print_(
+                f"Saving folder list to {con.style_path(self.config_path)}", end=""
+            )
+            with open(self.config_path, "w", encoding="utf8") as file:
+                file.write(json.dumps([str(item.source_dir) for item in self.folders]))
+            con.print_success()

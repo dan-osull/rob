@@ -27,7 +27,7 @@ class DiskUsage:
 
 
 def get_dir_size(path: WindowsPath) -> int:
-    """Return total size of files in given path and subdirs."""
+    """Return total size of files in given path and subdirs"""
     if not path.exists():
         # Avoid race with file creation
         return 0
@@ -202,6 +202,7 @@ def add_folder_actions(
     to_dir = folder.get_library_subdir(library)
     temp_dir = folder.get_temp_dir()
     dir_size_bytes = get_dir_size(from_dir)
+    con.print_(f"Folder size: {con.style_bytes_as_gb(dir_size_bytes)}")
 
     con.print_("\n[bold]Pre-flight checks[/bold]")
     test_dir_creation(to_dir)
@@ -230,12 +231,13 @@ def remove_folder_actions(folder: Folder, library: Library, dry_run: bool) -> No
     """
     Filesystem actions for `remove` command
 
-    Move data from `folder.get_target_dir()` to `folder.source_dir`
+    Move data from `folder.get_library_subdir()` to `folder.source_dir`
     """
     from_dir = folder.get_library_subdir(library)
     to_dir = folder.source_dir
     temp_dir = folder.get_temp_dir()
     dir_size_bytes = get_dir_size(from_dir)
+    con.print_(f"Folder size: {con.style_bytes_as_gb(dir_size_bytes)}")
 
     con.print_("\n[bold]Pre-flight checks[/bold]")
     # Sibling of source dir
