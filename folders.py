@@ -47,7 +47,7 @@ class Folder:
     def get_table_data(self, library: Library, show_size: bool = False) -> dict:
         result = {"Path": self.source_dir, "Name": self.short_name}
         if show_size:
-            result["Size"] = con.style_bytes_as_gb(self.get_library_data_size(library))
+            result["Size"] = self.get_library_data_size(library)
         return result
 
 

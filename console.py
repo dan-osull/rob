@@ -3,7 +3,7 @@ from typing import Union
 
 import click
 from rich.console import Console
-from tabulate import tabulate
+from rich.table import Table
 
 import filesystem
 from constants import PROJECT_NAME, VERSION
@@ -27,8 +27,14 @@ def print_library_info(library: Library, show_size: bool = False) -> None:
     print_library_folder_count(library)
     table_data = library.get_table_data(show_size=show_size)
     if table_data:
-        print_library_table(table_data)
-        if not show_size:
+        if show_size:
+            total_bytes = sum(row["Size"] for row in table_data)
+            for row in table_data:
+                row["Size"] = style_bytes_as_gb(row["Size"])
+            print_rich_table(table_data)
+            print_(f"\nTotal size: {style_bytes_as_gb(total_bytes)}")
+        else:
+            print_rich_table(table_data)
             print_("\nRun [bold]rob list[/bold] to see size of folders.")
 
 
@@ -46,17 +52,18 @@ def print_library_folder_count(library: Library) -> None:
     print_(f"{len(library.folders)} folder{plur_s} in {style_library(library)}")
 
 
-def print_library_table(table_data: list[dict]) -> None:
-    table = tabulate(table_data, headers="keys")
-    print_("")
-    table = table.split("\n", 1)
-    # Header row
-    print_(f"[bright_white]{table[0]}[/bright_white]")
-    table = table[1].split("\n", 1)
-    # Divider row
-    print_(f"{table[0]}")
-    # Table body
-    print_(style_path(table[1]))
+def print_rich_table(table_data: list[dict]) -> None:
+    table = Table()
+    for key in table_data[0].keys():
+        table.add_column(key)
+    for i, row in enumerate(table_data):
+        values = (str(value) for value in row.values())
+        if i % 2:
+            style = "cyan"
+        else:
+            style = "sky_blue1"
+        table.add_row(*values, style=style)
+    print_(table)
 
 
 def print_fail(msg: str = "") -> None:

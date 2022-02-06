@@ -9,7 +9,6 @@ python = ">=3.10,<3.11"
 click = "^8.0.3"
 pyinstaller = "^4.8"
 rich = "^11.0.0"
-tabulate = "^0.8.9"
 click-help-colors = "^0.9.1"
 
 [tool.poetry.dev-dependencies]
