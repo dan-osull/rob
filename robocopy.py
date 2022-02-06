@@ -19,7 +19,7 @@ class RobocopyResults:
     # considered "invariant", so the contained type needs to match exactly.
     # https://github.com/microsoft/pyright/issues/130
     errors: Sequence[Optional[str]]
-    stats: list[str]
+    stats: Sequence[Optional[str]]
 
 
 def parse_robocopy_output(
@@ -32,10 +32,19 @@ def parse_robocopy_output(
         # 50 chars long. Finds dividers in output, which are 78/79 chars.
         if "--------------------------------------------------" in line:
             divider_idx.append(index)
+
+    options = output_list[divider_idx[1] + 1 : divider_idx[2]]
+    if len(divider_idx) == 3:
+        errors = output_list[divider_idx[2] + 1 :]
+        stats = []
+    else:
+        errors = output_list[divider_idx[2] + 1 : divider_idx[3]]
+        stats = output_list[divider_idx[3] + 1 :]
+
     return RobocopyResults(
-        options=output_list[divider_idx[1] + 1 : divider_idx[2]],
-        errors=output_list[divider_idx[2] + 1 : divider_idx[3]],
-        stats=output_list[divider_idx[3] + 1 :],
+        options=options,
+        errors=errors,
+        stats=stats,
     )
 
 
@@ -78,7 +87,9 @@ def run_robocopy(
     ]
     if copy_permissions:
         robocopy_args.append(
-            "/SEC"  # copy files with SECurity (equivalent to /COPY:DATS) (S=Security=NTFS ACLs)
+            # /COPY flags: D=Data, A=Attributes, T=Timestamps, X=Skip alt data streams,
+            # S=Security=NTFS ACLs, O=Owner info, U=aUditing info
+            "/COPY:DATSO"
         )
 
     proc = subprocess.Popen(
@@ -96,8 +107,10 @@ def run_robocopy(
         # https://ss64.com/nt/robocopy-exit.html
         if not quiet:
             with Progress(auto_refresh=False, transient=True) as progress:
+                # Don't display 100% while final transfers complete
+                total = dir_size_bytes / 100 * 95
                 task_id = progress.add_task(
-                    "[green]Copying data...[/green]", total=dir_size_bytes
+                    "[green]Copying data...[/green]", total=total
                 )
                 progress.update(task_id, completed=filesystem.get_dir_size(target))
                 progress.refresh()

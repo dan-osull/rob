@@ -4,10 +4,10 @@ import click
 from click import ClickException
 from click_help_colors import HelpColorsGroup
 
+from actions import AddFolderActions, RemoveFolderActions
 from console import (
     HELP_HEADERS_COLOR,
     HELP_OPTIONS_COLOR,
-    confirm_action,
     print_,
     print_library_info,
     print_success,
@@ -16,7 +16,6 @@ from console import (
     style_path,
 )
 from exceptions import echo_red_error
-from filesystem import add_folder_actions, remove_folder_actions
 from folders import Folder, Library
 
 
@@ -77,16 +76,20 @@ def dry_run_option(function):
     )(function)
 
 
+def dont_copy_permissions_option(function):
+    return click.option(
+        "--dont-copy-permissions",
+        default=False,
+        type=bool,
+        is_flag=True,
+        help="Do not copy NTFS permission and owner data (advanced).",
+    )(function)
+
+
 @cli.command(no_args_is_help=True)
 @library_folder_option
 @dry_run_option
-@click.option(
-    "--dont-copy-permissions",
-    default=False,
-    type=bool,
-    is_flag=True,
-    help="Do not copy NTFS permissions (advanced).",
-)
+@dont_copy_permissions_option
 @click.option(
     "--allow-same-disk",
     default=False,
@@ -145,10 +148,9 @@ def add(
         )
     msg = f"[bold]Add folder {style_path(folder.source_dir)} to {style_library(library)}[/bold]"
     print_(msg)
-    confirm_action(dry_run=dry_run)
-    add_folder_actions(
-        folder, library, dry_run=dry_run, dont_copy_permissions=dont_copy_permissions
-    )
+
+    actions = AddFolderActions(folder, library, dry_run, dont_copy_permissions)
+    actions.run()
 
     if not dry_run:
         # Load library again in case it has been updated by another process
@@ -165,8 +167,14 @@ def add(
 @cli.command(no_args_is_help=True)
 @library_folder_option
 @dry_run_option
+@dont_copy_permissions_option
 @click.argument("folder-path")
-def remove(folder_path: str, library_folder: WindowsPath, dry_run: bool):
+def remove(
+    folder_path: str,
+    library_folder: WindowsPath,
+    dry_run: bool,
+    dont_copy_permissions: bool,
+):
     """
     Remove FOLDER_PATH from library
 
@@ -187,8 +195,8 @@ def remove(folder_path: str, library_folder: WindowsPath, dry_run: bool):
 
     msg = f"[bold]Remove folder {style_path(folder.source_dir)} with name {style_path(folder.short_name)} from {style_library(library)}[/bold]"
     print_(msg)
-    confirm_action(dry_run=dry_run)
-    remove_folder_actions(folder, library, dry_run=dry_run)
+    actions = RemoveFolderActions(folder, library, dry_run, dont_copy_permissions)
+    actions.run()
 
     if not dry_run:
         # Load library again in case it has been updated by another process
