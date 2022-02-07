@@ -92,7 +92,12 @@ class Library:
         return [filesystem.DiskUsage(drive) for drive in drives]
 
     def find_folder(self, search_term: str) -> Optional[Folder]:
-        """Search library using `source_dir` and `target_dir_name` fields"""
+        """Search library by index number, `source_dir` or `target_dir_name`"""
+        if search_term.isnumeric():
+            try:
+                return self.folders[int(search_term)]
+            except IndexError:
+                return
         match = next(
             (x for x in self.folders if x.source_dir == WindowsPath(search_term)), None
         )
@@ -101,7 +106,12 @@ class Library:
         return next((x for x in self.folders if x.short_name == search_term), None)
 
     def get_table_data(self, show_size: bool = False) -> list[dict]:
-        return [item.get_table_data(self, show_size=show_size) for item in self.folders]
+        results = []
+        for i, item in enumerate(self.folders):
+            results.append(
+                {"Index": i} | item.get_table_data(self, show_size=show_size)
+            )
+        return results
 
     def get_test_dir(self) -> WindowsPath:
         """Directory in library for testing write access"""

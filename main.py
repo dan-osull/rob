@@ -179,6 +179,8 @@ def remove(
     Remove FOLDER_PATH from library
 
     Data is restored to its original location.
+
+    You can also select a folder by providing its ID or Name.
     """
     # Not casting folder_path to Path type so that we can search for target_dir_name too
     library = Library(library_folder)

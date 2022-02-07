@@ -2,6 +2,7 @@ from pathlib import WindowsPath
 from typing import Union
 
 import click
+from rich import box
 from rich.console import Console
 from rich.table import Table
 
@@ -27,6 +28,7 @@ def print_library_info(library: Library, show_size: bool = False) -> None:
     print_library_folder_count(library)
     table_data = library.get_table_data(show_size=show_size)
     if table_data:
+        print_("")
         if show_size:
             total_bytes = sum(row["Size"] for row in table_data)
             for row in table_data:
@@ -53,16 +55,14 @@ def print_library_folder_count(library: Library) -> None:
 
 
 def print_rich_table(table_data: list[dict]) -> None:
-    table = Table()
-    for key in table_data[0].keys():
-        table.add_column(key)
-    for i, row in enumerate(table_data):
+    table = Table(row_styles=["cyan", "sky_blue1"], show_edge=False, box=box.SQUARE)
+    table.add_column("ID", overflow="ellipsis")
+    table.add_column("Path", overflow="ellipsis")
+    table.add_column("Name", overflow="fold")
+    table.add_column("Size", justify="right")
+    for row in table_data:
         values = (str(value) for value in row.values())
-        if i % 2:
-            style = "cyan"
-        else:
-            style = "sky_blue1"
-        table.add_row(*values, style=style)
+        table.add_row(*values)
     print_(table)
 
 

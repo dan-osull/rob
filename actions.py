@@ -53,7 +53,7 @@ class AddFolderActions(FolderActions):
     """
     Filesystem actions for `add` command
 
-    Move data from `folder.source_dir` to `folder.get_target_dir()`
+    Move data from `folder.source_dir` to `folder.get_library_subdir()`
     """
 
     def __post_init__(self):
