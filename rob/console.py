@@ -6,9 +6,9 @@ from rich import box
 from rich.console import Console
 from rich.table import Table
 
-import filesystem
-from constants import PROJECT_NAME, VERSION
-from folders import Library
+import rob.filesystem
+from rob import PROJECT_NAME, VERSION
+from rob.folders import Library
 
 # click.termui._ansi_colors
 HELP_HEADERS_COLOR = "bright_white"
@@ -38,7 +38,7 @@ def print_library_info(library: Library, show_size: bool = False) -> None:
             print_("\nRun [bold]rob list[/bold] to see size of folders.")
 
 
-def print_disk_usage(disk: filesystem.DiskUsage) -> None:
+def print_disk_usage(disk: rob.filesystem.DiskUsage) -> None:
     print_(
         f"Drive {style_path(disk.drive)} "
         f"{style_bytes_as_gb((disk.usage.used),ndigits=None)} used / "

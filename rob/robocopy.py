@@ -8,8 +8,8 @@ from typing import Optional, Sequence
 from click import ClickException
 from rich.progress import Progress
 
-import console as con
-import filesystem
+import rob.console as con
+import rob.filesystem
 
 
 @dataclass
@@ -58,7 +58,7 @@ def run_robocopy(
 ) -> None:
     msg = f"Copying data from {con.style_path(source)} to {con.style_path(target)}"
     if not dir_size_bytes:
-        dir_size_bytes = filesystem.get_dir_size(source)
+        dir_size_bytes = rob.filesystem.get_dir_size(source)
     if target.exists():
         con.print_(msg)
         raise ClickException("{target} already exists")
@@ -112,7 +112,7 @@ def run_robocopy(
                 task_id = progress.add_task(
                     "[green]Copying data...[/green]", total=total
                 )
-                progress.update(task_id, completed=filesystem.get_dir_size(target))
+                progress.update(task_id, completed=rob.filesystem.get_dir_size(target))
                 progress.refresh()
                 sleep(2)
 
@@ -124,7 +124,7 @@ def run_robocopy(
     if robocopy_results.errors:
         raise ClickException(f"Robocopy: {str(robocopy_results.errors)}")
 
-    if dir_size_bytes != filesystem.get_dir_size(target):
+    if dir_size_bytes != rob.filesystem.get_dir_size(target):
         raise ClickException("Source and target folder sizes do not match. Aborting.")
 
     if not quiet:

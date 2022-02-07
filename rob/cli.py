@@ -4,8 +4,8 @@ import click
 from click import ClickException
 from click_help_colors import HelpColorsGroup
 
-from actions import AddFolderActions, RemoveFolderActions
-from console import (
+from rob.actions import AddFolderActions, RemoveFolderActions
+from rob.console import (
     HELP_HEADERS_COLOR,
     HELP_OPTIONS_COLOR,
     print_,
@@ -15,8 +15,8 @@ from console import (
     style_library,
     style_path,
 )
-from exceptions import echo_red_error
-from folders import Folder, Library
+from rob.exceptions import echo_red_error
+from rob.folders import Folder, Library
 
 
 def library_folder_option(function):
@@ -210,10 +210,3 @@ def remove(
         print_(f"{style_path(folder.source_dir)} is [bold]not[/bold] a symlink")
     else:
         print_success("\nDry run result:")
-
-
-if __name__ == "__main__":
-    # Entry point for application
-    cli()  # pylint: disable=no-value-for-parameter
-    # TODO: should we try to clean up library and filesystem if left in an inconsistent state?
-    print_("")

@@ -6,9 +6,9 @@ from hashlib import sha256
 from pathlib import WindowsPath
 from typing import ClassVar, Optional
 
-import console as con
-import filesystem
-from constants import PROJECT_NAME
+import rob.console as con
+import rob.filesystem
+from rob import PROJECT_NAME
 
 
 @dataclass
@@ -31,7 +31,7 @@ class Folder:
         return self.source_dir.parent.joinpath(temp_dir_name).resolve()
 
     def get_library_data_size(self, library) -> int:
-        return filesystem.get_dir_size(self.get_library_subdir(library))
+        return rob.filesystem.get_dir_size(self.get_library_subdir(library))
 
     @property
     def short_name(self) -> str:
@@ -85,11 +85,11 @@ class Library:
         return [folder.source_dir for folder in self.folders]
 
     @property
-    def disk_usage(self) -> list[filesystem.DiskUsage]:
+    def disk_usage(self) -> list[rob.filesystem.DiskUsage]:
         """Usage for disk containing library and any source disks"""
         paths = [self.library_folder] + self.source_dirs
         drives = sorted({path.drive for path in paths})
-        return [filesystem.DiskUsage(drive) for drive in drives]
+        return [rob.filesystem.DiskUsage(drive) for drive in drives]
 
     def find_folder(self, search_term: str) -> Optional[Folder]:
         """Search library by index number, `source_dir` or `target_dir_name`"""

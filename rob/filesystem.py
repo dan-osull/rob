@@ -5,8 +5,8 @@ from pathlib import WindowsPath
 
 from click import ClickException
 
-import console as con
-from robocopy import run_robocopy
+import rob.console as con
+from rob.robocopy import run_robocopy
 
 
 @dataclass
@@ -62,7 +62,7 @@ def test_dir_creation(path: WindowsPath) -> None:
         path.mkdir()
     except PermissionError as e:
         raise ClickException(
-            f"Could not create {path}. Do you need to run Command Prompt as Administrator?"
+            f"\nCould not create {path}. Do you need to run Command Prompt as Administrator?"
         ) from e
     finally:
         if path.exists():
@@ -84,7 +84,7 @@ def test_set_ntfs_permisisons(source: WindowsPath, target: WindowsPath) -> None:
             or "You do not have the Manage Auditing user right" in e.message
         ):
             raise ClickException(
-                "Unable to set permissions. Do you need to run Command Prompt as Administrator?"
+                "\nUnable to set permissions. Do you need to run Command Prompt as Administrator?"
             ) from e
         raise e
     finally:
@@ -122,7 +122,7 @@ def rename_folder(
         source.rename(target)
     except PermissionError as e:
         raise ClickException(
-            f"Unable to rename {source} to {target}. Is an application locking the folder open?"
+            f"\nUnable to rename {source} to {target}. Is an application locking the folder open?"
         ) from e
     con.print_success()
 
@@ -147,7 +147,7 @@ def create_symlink(
         raise ClickException(f"\n{source} already exists") from e
     except OSError as e:
         raise ClickException(
-            "Permission denied when creating symlink. Run Command Prompt as Administrator or enable Windows Developer Mode."
+            "\nPermission denied when creating symlink. Run Command Prompt as Administrator or enable Windows Developer Mode."
         ) from e
     if not quiet:
         con.print_success()
