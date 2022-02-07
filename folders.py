@@ -97,7 +97,7 @@ class Library:
             try:
                 return self.folders[int(search_term)]
             except IndexError:
-                return
+                return None
         match = next(
             (x for x in self.folders if x.source_dir == WindowsPath(search_term)), None
         )

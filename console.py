@@ -31,12 +31,10 @@ def print_library_info(library: Library, show_size: bool = False) -> None:
         print_("")
         if show_size:
             total_bytes = sum(row["Size"] for row in table_data)
-            for row in table_data:
-                row["Size"] = style_bytes_as_gb(row["Size"])
-            print_rich_table(table_data)
+            print_library_table(table_data, show_size)
             print_(f"\nTotal size: {style_bytes_as_gb(total_bytes)}")
         else:
-            print_rich_table(table_data)
+            print_library_table(table_data)
             print_("\nRun [bold]rob list[/bold] to see size of folders.")
 
 
@@ -54,12 +52,15 @@ def print_library_folder_count(library: Library) -> None:
     print_(f"{len(library.folders)} folder{plur_s} in {style_library(library)}")
 
 
-def print_rich_table(table_data: list[dict]) -> None:
+def print_library_table(table_data: list[dict], show_size: bool = False) -> None:
     table = Table(row_styles=["cyan", "sky_blue1"], show_edge=False, box=box.SQUARE)
     table.add_column("ID", overflow="ellipsis")
     table.add_column("Path", overflow="ellipsis")
     table.add_column("Name", overflow="fold")
-    table.add_column("Size", justify="right")
+    if show_size:
+        for row in table_data:
+            row["Size"] = style_bytes_as_gb(row["Size"])
+        table.add_column("Size", justify="right")
     for row in table_data:
         values = (str(value) for value in row.values())
         table.add_row(*values)
@@ -108,7 +109,6 @@ def style_bytes_as_gb(size_bytes: int, ndigits=1) -> str:
 
 def confirm_action(dry_run: bool) -> None:
     if dry_run:
-        confirm_text = "Confirm dry run?"
-    else:
-        confirm_text = "Confirm?"
-    click.confirm(text=confirm_text, abort=True)
+        console.rule("[green]DRY RUN MODE[/green]")
+        print_("No changes will be made.")
+    click.confirm(text="Continue?", abort=True)

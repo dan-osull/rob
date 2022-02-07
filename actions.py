@@ -3,24 +3,22 @@ from dataclasses import dataclass, field
 from pathlib import WindowsPath
 
 import console as con
-from filesystem import (
-    DiskUsage,
-    create_symlink,
-    delete_folder,
-    delete_symlink,
-    get_dir_size,
-    rename_folder,
-    test_dir_creation,
-    test_disk_space,
-    test_set_ntfs_permisisons,
-    test_symlink_creation,
-)
+from filesystem import (DiskUsage, create_symlink, delete_folder,
+                        delete_symlink, get_dir_size, rename_folder,
+                        test_dir_creation, test_disk_space,
+                        test_set_ntfs_permisisons, test_symlink_creation)
 from folders import Folder, Library
 from robocopy import run_robocopy
 
 
 @dataclass
-class FolderActions(ABC):
+class FilestoreActions(ABC):
+    """
+    A series of filestore actions to be performed by the tool
+
+    Invoke with `run()`
+    """
+
     folder: Folder
     library: Library
     dry_run: bool
@@ -49,7 +47,7 @@ class FolderActions(ABC):
 
 
 @dataclass
-class AddFolderActions(FolderActions):
+class AddFolderActions(FilestoreActions):
     """
     Filesystem actions for `add` command
 
@@ -87,7 +85,7 @@ class AddFolderActions(FolderActions):
 
 
 @dataclass
-class RemoveFolderActions(FolderActions):
+class RemoveFolderActions(FilestoreActions):
     """
     Filesystem actions for `remove` command
 
