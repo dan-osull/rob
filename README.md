@@ -58,7 +58,7 @@ In this example, I'm using `rob` to move GTA5 from a small fast SSD (drive C) to
 
 ![Screenshot](screenshots/rob_add_dry_run.png)
 
-    *Hint: use a utility like [WinDirStat](https://windirstat.net/) to find the biggest folders on your SSD.*
+  *Hint: use a utility like [WinDirStat](https://windirstat.net/) to find the biggest folders on your SSD.*
 
 7. Run the same command without `--dry-run` to move data for real:
 
