@@ -22,6 +22,10 @@ It's quicker than downloading and doesn't use any of your data allowance. Less d
 
 - **[rob-0.2.0.zip](https://github.com/dan-osull/rob/releases/download/v0.2.0/rob-0.2.0.zip)** (9.2MB)
 
+## Feedback
+
+Feel free to drop me a line at python@osull.com
+
 ## How to use
 
 ### Add a folder to your `rob` library
