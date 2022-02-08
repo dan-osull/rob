@@ -1,1 +1,1 @@
-poetry run pyinstaller rob/__main__.py --name rob --onefile --workpath _pyinstaller_temp\  --specpath _pyinstaller_temp\
+poetry run pyinstaller rob/__main__.py --name rob --onefile --workpath _pyinstaller_temp\ --specpath _pyinstaller_temp\

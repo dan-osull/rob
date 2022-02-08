@@ -107,7 +107,6 @@ def run_robocopy(
         # https://ss64.com/nt/robocopy-exit.html
         if not quiet:
             with Progress(auto_refresh=False, transient=True) as progress:
-                # Don't display 100% while final transfers complete
                 task_id = progress.add_task(
                     "[green]Copying data...[/green]", total=dir_size_bytes
                 )
