@@ -16,7 +16,7 @@ It's quicker than downloading and doesn't use any of your data allowance. Less d
 
 ![Demo](screenshots/demo.gif)
 
-> rob the poor and give to the rich
+> rob from the poor and give to the rich
 
 ## Download
 
