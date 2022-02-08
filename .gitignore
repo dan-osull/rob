@@ -1,0 +1,4 @@
+__pycache__/
+_pyinstaller_temp/
+/dist/
+*-folders.json
