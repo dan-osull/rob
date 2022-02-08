@@ -8,7 +8,7 @@
 
 The process is reversible: `rob` can move a game back to your SSD on demand.
 
-This all means that you can have a game on your fast disk when you want to play it, then archive it when you're done, all without messing with installers or app store settings.
+This means that you can have a game on your fast disk when you want to play it, then archive it when you're done, all without messing with installers or app store settings.
 
 It's quicker than downloading and doesn't use any of your data allowance. Less demanding games may even run well from your slower disk.
 
