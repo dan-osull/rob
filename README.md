@@ -16,15 +16,13 @@ It's quicker than downloading and doesn't use any of your data allowance. Less d
 
 ![Demo](screenshots/demo.gif)
 
+> rob the poor and give to the rich
+
 ## Download
 
 ***BETA SOFTWARE. NOT YET RECOMMENDED FOR GENERAL USE.***
 
 - **[rob-0.2.0.zip](https://github.com/dan-osull/rob/releases/download/v0.2.0/rob-0.2.0.zip)** (9.2MB)
-
-## Feedback
-
-Feel free to drop me a line at python@osull.com
 
 ## How to use
 
@@ -133,6 +131,10 @@ Commands:
   list    List folders in library and their size
   remove  Remove FOLDER_PATH from library
 ```
+
+## Feedback
+
+Feel free to drop me a line at python@osull.com
 
 ## Is this malware?
 
