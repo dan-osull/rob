@@ -1,6 +1,6 @@
 Is your SSD full of games that you don't want to delete?
 
-Do you have a slow or metered internet connection which means you can't download the same game multiple times?
+Do you have a slow or metered internet connection and you can't download the same game multiple times?
 
 **`rob` is a command line tool for Windows that frees up space on your SSD by moving game data to a library of folders on another disk.**
 
