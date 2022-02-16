@@ -9,7 +9,7 @@ Do you have a slow or metered internet connection which means you can't download
 - 💾 Move any game to another disk
 - 🕹 Games continue to update and run
 - 👓 Transparent to games and app stores
-- 💵 Free, open-source, no ads
+- 💲 Free, open-source, no ads
 - 🚀 Fast, multi-threaded data copy
 - ✅ Test before you use with "dry run" mode
 - 📈 Faster than downloading
