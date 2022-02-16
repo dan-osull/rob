@@ -1,16 +1,26 @@
-**Is your SSD full of games that you don't want to delete?**
+Is your SSD full of games that you don't want to delete?
 
-**Do you have a slow or metered internet connection which means you can't download the same game multiple times?**
+Do you have a slow or metered internet connection which means you can't download the same game multiple times?
 
-`rob` is a command line tool for Windows that frees up space on your SSD by moving data to a library of folders on another disk.
+**`rob` is a command line tool for Windows that frees up space on your SSD by moving game data to a library of folders on another disk.**
+
+## Features
+
+- 💾 Move any game to another disk
+- 🕹 Games continue to update and run
+- 👓 Transparent to games and app stores
+- 💵 Free, open-source, no ads
+- 🚀 Fast, multi-threaded data copy
+- ✅ Test before you use with "dry run" mode
+- 📈 Faster than downloading
+
+## How?
 
 `rob` creates a [symlink](https://en.wikipedia.org/wiki/Symbolic_link) from the original location to the library so that games continue to work and can be updated.
 
 The process is reversible: `rob` can move a game back to your SSD on demand.
 
-This means that you can have a game on your fast disk when you want to play it, then archive it when you're done, all without messing with installers or app store settings.
-
-It's quicker than downloading and doesn't use any of your data allowance. Less demanding games may even run well from your slower disk.
+This means that you can have a game on your fast disk when you want to play it, then archive it when you're done. Less demanding games may even run well from your slower disk.
 
 `rob` was designed with games and SSDs in mind but it works with folders and disks of any type.
 
@@ -20,11 +30,9 @@ It's quicker than downloading and doesn't use any of your data allowance. Less d
 
 ## Download
 
-***BETA SOFTWARE. NOT YET RECOMMENDED FOR GENERAL USE.***
-
 - **[rob-0.2.0.zip](https://github.com/dan-osull/rob/releases/download/v0.2.0/rob-0.2.0.zip)** (9.2MB)
 
-## How to use
+## Example
 
 ### Add a folder to your `rob` library
 
@@ -131,16 +139,22 @@ Commands:
   list    List folders in library and their size
   remove  Remove FOLDER_PATH from library
 ```
-
-## Feedback
-
-Feel free to drop me a line at python@osull.com
-
 ## Is this malware?
 
-No. But you may get a false positive, in which case you need to tell your security software to unblock/allow `rob`.
+No. 
 
-Feel free to read the code and make your own exe with `build_exe.cmd`
+But the exe may give a false positive because this tool copies and deletes data.
+
+If you get a false positive, you can either tell your security software to unblock/allow `rob`, or [install Python and run the code from there](#python-instructions).
+
+## Can I trust you?
+
+This software is open source and its code can be inspected to verify that it does what I say.
+
+There are two ways to directly use the code in this repo:
+
+1. [Run in Python](#python-instructions)
+2. Make your own exe using `build_exe.cmd`
 
 ## Does `rob` need Administrator access?
 
@@ -154,11 +168,11 @@ The long answer is that `rob` can work without admin access if:
 
 Because `rob` is designed for games, which are usually in Program Files, in practice it is easiest to run the tool from an admin Command Prompt.
 
-## Python users
+## Python instructions
 
 Pythonistas can run `rob` as a Python package.
 
-Clone this GitHub repo and:
+Download or clone this GitHub repo and:
 
     pip install poetry
     poetry install
@@ -169,3 +183,7 @@ Tested with Python 3.10, Windows installer, 64-bit.
 ## Thanks
 
 This software is dedicated to Comcast, the worst company in the history of the world.
+
+## Feedback
+
+Please drop me a line at python@osull.com
