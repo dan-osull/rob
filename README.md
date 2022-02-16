@@ -26,7 +26,7 @@ This means that you can have a game on your fast disk when you want to play it, 
 
 ![Demo](screenshots/demo.gif)
 
-> rob the poor and give to the rich
+> rob from the poor and give to the rich
 
 ## Download
 
