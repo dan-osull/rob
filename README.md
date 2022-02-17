@@ -1,6 +1,6 @@
 Is your SSD full of games that you don't want to delete?
 
-Do you have a slow or metered internet connection which means you can't download the same game multiple times?
+Do you have a slow or metered internet connection and you can't download the same game multiple times?
 
 **`rob` is a command line tool for Windows that frees up space on your SSD by moving game data to a library of folders on another disk.**
 
@@ -21,6 +21,8 @@ Do you have a slow or metered internet connection which means you can't download
 The process is reversible: `rob` can move a game back to your SSD on demand.
 
 This means that you can have a game on your fast disk when you want to play it, then archive it when you're done. Less demanding games may even run well from your slower disk.
+
+`rob` works by generating a new name for each folder, and storing the original path in a file named `rob-folders.json` in the `rob` library folder.
 
 `rob` was designed with games and SSDs in mind but it works with folders and disks of any type.
 
@@ -139,6 +141,9 @@ Commands:
   list    List folders in library and their size
   remove  Remove FOLDER_PATH from library
 ```
+
+Each command has further help, e.g. `rob add --help`
+
 ## Is this malware?
 
 No. 
@@ -172,7 +177,7 @@ Because `rob` is designed for games, which are usually in Program Files, in prac
 
 Pythonistas can run `rob` as a Python package.
 
-Download or clone this GitHub repo and:
+Download this repo and:
 
     pip install poetry
     poetry install
