@@ -36,6 +36,12 @@ This means that you can have a game on your fast disk when you want to play it, 
 
 - **[rob-0.2.0.zip](https://github.com/dan-osull/rob/releases/download/v0.2.0/rob-0.2.0.zip)** (9.2MB)
 
+**This is a beta version.**
+
+It should function well: `rob` is designed to be non-destructive, and it performs a lot of checks before moving data to ensure success. But it has not yet been used on a wide variety of systems "in the wild".
+
+Please let me know how you get on at python@osull.com
+
 ## Example
 
 ### Add a folder to your `rob` library
